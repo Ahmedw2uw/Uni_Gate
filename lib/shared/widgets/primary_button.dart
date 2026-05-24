@@ -4,8 +4,7 @@ import '../../core/app_colors.dart';
 class PrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Widget child;
-  const PrimaryButton({Key? key, required this.onPressed, required this.child})
-    : super(key: key);
+  const PrimaryButton({super.key, required this.onPressed, required this.child});
 
   @override
   Widget build(BuildContext context) {
