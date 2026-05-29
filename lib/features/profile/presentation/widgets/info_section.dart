@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/app_colors.dart';
-import '../../../../shared/widgets/custom_text.dart';
+import 'package:nuigate/core/app_colors.dart';
+import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class ProfileInfoSection extends StatelessWidget {
   final String title;
@@ -27,10 +27,16 @@ class ProfileInfoSection extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: CustomText(title, fontSize: 17, fontWeight: FontWeight.bold),
+                  child: CustomText(
+                    title,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: AppColors.primary,
                 ),
               ],
@@ -41,7 +47,9 @@ class ProfileInfoSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Column(
-              children: details.map((item) => _buildRow(item['label']!, item['value']!)).toList(),
+              children: details
+                  .map((item) => _buildRow(item['label']!, item['value']!))
+                  .toList(),
             ),
           ),
         const Divider(height: 1),
@@ -54,8 +62,14 @@ class ProfileInfoSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Expanded(flex: 3, child: CustomText(label, fontSize: 14, color: Colors.black54)),
-          Expanded(flex: 4, child: CustomText(value, fontSize: 14, fontWeight: FontWeight.w600)),
+          Expanded(
+            flex: 3,
+            child: CustomText(label, fontSize: 14, color: Colors.black54),
+          ),
+          Expanded(
+            flex: 4,
+            child: CustomText(value, fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

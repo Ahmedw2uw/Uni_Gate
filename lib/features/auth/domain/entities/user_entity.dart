@@ -10,7 +10,7 @@ class UserEntity extends Equatable {
   final String? role;
   final int? departmentId;
   final String? department;
-final int? academicYear;
+  final int? academicYear;
   final int? semester;
   const UserEntity({
     required this.id,
@@ -24,7 +24,7 @@ final int? academicYear;
     this.academicYear,
     this.semester,
   });
-UserEntity copyWith({
+  UserEntity copyWith({
     String? id,
     String? name,
     String? email,
@@ -45,6 +45,7 @@ UserEntity copyWith({
       department: department ?? this.department,
     );
   }
+
   @override
   List<Object?> get props => [
     id,

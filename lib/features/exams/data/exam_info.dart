@@ -41,6 +41,7 @@ class ExamInfo {
     );
   }
 }
+
 // في ملف exam_model.dart أضف هذا الكلاس
 // 1. الموديل الرئيسي لبيانات محاولة الامتحان (الـ Response اللي راجع من الـ start)
 class ExamStartResponse {
@@ -90,8 +91,8 @@ class ExamQuestion {
   final List<ExamOption> options; // تحويلها إلى موديل مخصص وليس String
 
   const ExamQuestion({
-    required this.id, 
-    required this.text, 
+    required this.id,
+    required this.text,
     required this.orderIndex,
     required this.marks,
     this.selectedOptionId,
@@ -118,10 +119,7 @@ class ExamOption {
   final int id;
   final String optionText;
 
-  ExamOption({
-    required this.id, 
-    required this.optionText,
-  });
+  ExamOption({required this.id, required this.optionText});
 
   factory ExamOption.fromJson(Map<String, dynamic> json) {
     return ExamOption(

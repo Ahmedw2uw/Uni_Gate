@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nuigate/features/auth/data/models/user_model.dart';
 import 'package:nuigate/features/profile/presentation/widgets/info_section.dart';
-import '../../../../core/app_colors.dart';
-import '../../../../shared/widgets/custom_text.dart';
-import '../../../../shared/widgets/app_scaffold.dart';
+import 'package:nuigate/core/app_colors.dart';
+import 'package:nuigate/shared/widgets/custom_text.dart';
+import 'package:nuigate/shared/widgets/app_scaffold.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserModel userData;
@@ -37,10 +37,12 @@ class _ProfilePageState extends State<ProfilePage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.accent.withOpacity(0.5)),
+                border: Border.all(
+                  color: AppColors.accent.withValues(alpha: 0.5),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -116,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -126,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             backgroundImage: user.profileImage != null
                 ? NetworkImage(user.profileImage!)
                 : null,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -72,6 +73,11 @@ class ApiServices {
     } on SocketException {
       throw 'No Internet connection';
     } on DioException catch (e) {
+      // ⬇️ التعديل هنا: لو السيرفر باعت رد (حتى لو خطأ 400 أو 500)، مرر الإكسبشن للكيوبيت عشان يقرأ التفاصيل
+      if (e.response != null) {
+        rethrow;
+      }
+      // لو الخطأ من الموبايل نفسه (مثلا TimeOut)، ارمي النص العادي
       throw 'API Error: ${e.message}';
     }
   }
@@ -150,7 +156,7 @@ class AuthInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (response.statusCode == 401) {
       // Token expired
-      print('❌ 401 Unauthorized - Token expired');
+      debugPrint('❌ 401 Unauthorized - Token expired');
       PrefHelpers.clearAuthData();
       // Trigger logout in your app
       // ServiceLocator.authCubit.logout();
@@ -162,7 +168,7 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
       PrefHelpers.clearAuthData();
-      print('❌ Auth error: ${err.message}');
+      debugPrint('❌ Auth error: ${err.message}');
     }
     super.onError(err, handler);
   }

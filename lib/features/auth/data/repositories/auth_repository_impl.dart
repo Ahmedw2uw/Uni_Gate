@@ -68,20 +68,22 @@ class AuthRepositoryImpl implements AuthRepository {
       rethrow;
     }
   }
-@override
-Future<UserEntity> getCurrentUser() async {
-  try {
-    // نلغي تمرير التوكن يدوياً لأن الـ DataSource والـ API يتكفلان بذلك
-    final userModel = await remoteDataSource.getCurrentUser(); 
-    
-    await localDataSource.saveUser(userModel);
-    return userModel;
-  } catch (e) {
-    final localUser = await localDataSource.getUser();
-    if (localUser != null) return localUser;
-    rethrow;
+
+  @override
+  Future<UserEntity> getCurrentUser() async {
+    try {
+      // نلغي تمرير التوكن يدوياً لأن الـ DataSource والـ API يتكفلان بذلك
+      final userModel = await remoteDataSource.getCurrentUser();
+
+      await localDataSource.saveUser(userModel);
+      return userModel;
+    } catch (e) {
+      final localUser = await localDataSource.getUser();
+      if (localUser != null) return localUser;
+      rethrow;
+    }
   }
-}
+
   @override
   Future<void> logout() async {
     try {

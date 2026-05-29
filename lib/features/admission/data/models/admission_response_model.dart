@@ -24,7 +24,7 @@
 //   }
 
 //   AdmissionEntity toEntity() => AdmissionEntity(
-//     status: status ?? 'Pending', 
+//     status: status ?? 'Pending',
 //     message: message,
 //     data: data,
 //     isSuccess: isSuccess ?? false,

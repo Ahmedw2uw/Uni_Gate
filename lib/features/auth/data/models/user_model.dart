@@ -2,14 +2,12 @@ import 'package:nuigate/features/auth/domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
   final String? studentCode;
-  final int? academicYear;
   // الحقول الجديدة المكتشفة من السيرفر
   final String? phone;
   final String? nationalId;
   final String? gender;
-  final int? semester;
   final String? facultyName;
-
+  final int? studentId; // 🌟 ضيف السطر ده هنا لحفظ الـ ID الرقمي (2626)
   const UserModel({
     required super.id,
     required super.name,
@@ -20,12 +18,13 @@ class UserModel extends UserEntity {
     super.departmentId,
     super.department,
     this.studentCode,
-    this.academicYear,
+    super.academicYear,
     this.phone, // جديد
     this.nationalId, // جديد
     this.gender, // جديد
-    this.semester, // جديد
-    this.facultyName, // جديد
+    super.semester, // جديد
+    this.facultyName,
+    this.studentId, // جديد
   });
 
   // ========== الـ Getters الدفاعية للتأمين الأكاديمي ==========
@@ -39,32 +38,44 @@ class UserModel extends UserEntity {
   /// هل يمكن للمستخدم الوصول للميزات الأكاديمية؟
   bool get canAccessAcademicFeatures => !isApplicant && hasAssignedDepartment;
 
-factory UserModel.fromJson(Map<String, dynamic> json) {
-  final studentData = json['student'] as Map<String, dynamic>?;
-  final academicInfo = studentData?['academicInfo'] as Map<String, dynamic>?;
-  final deptData = json['department'] as Map<String, dynamic>?;
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    final studentData = json['student'] as Map<String, dynamic>?;
+    final academicInfo = studentData?['academicInfo'] as Map<String, dynamic>?;
+    final deptData = json['department'] as Map<String, dynamic>?;
 
-  return UserModel(
-    id: json['id']?.toString() ?? studentData?['id']?.toString() ?? '',
-    // استخدام الاسم من الـ studentData أولاً لأنه الأدق (Ahmed Ali)
-    name: studentData?['fullName']?.toString() ?? json['displayName']?.toString() ?? '',
-    email: json['email']?.toString() ?? studentData?['email']?.toString() ?? '',
-    token: json['token']?.toString(),
-    role: (json['role'] is List) ? (json['role'] as List).join(', ') : json['role']?.toString(),
+    return UserModel(
+      id: json['id']?.toString() ?? studentData?['id']?.toString() ?? '',
+      // استخدام الاسم من الـ studentData أولاً لأنه الأدق (Ahmed Ali)
+      name:
+          studentData?['fullName']?.toString() ??
+          json['displayName']?.toString() ??
+          '',
+      email:
+          json['email']?.toString() ?? studentData?['email']?.toString() ?? '',
+      token: json['token']?.toString(),
+      role: (json['role'] is List)
+          ? (json['role'] as List).join(', ')
+          : json['role']?.toString(),
 
-    // ✅ التأكد من تحويل الـ ID لـ int بشكل صريح
-    departmentId: deptData?['id'] is int ? deptData!['id'] : int.tryParse(deptData?['id']?.toString() ?? '0') ?? 0,
-    department: deptData?['name']?.toString(),
+      // ✅ التأكد من تحويل الـ ID لـ int بشكل صريح
+      departmentId: deptData?['id'] is int
+          ? deptData!['id']
+          : int.tryParse(deptData?['id']?.toString() ?? '0') ?? 0,
+      department: deptData?['name']?.toString(),
 
-    // ✅ قراءة السنة والترم
-    academicYear: academicInfo?['academicYear'] ?? studentData?['academicYear'] ?? 1,
-    semester: academicInfo?['semester'] ?? studentData?['semester'] ?? 1,
+      // ✅ قراءة السنة والترم
+      academicYear:
+          academicInfo?['academicYear'] ?? studentData?['academicYear'] ?? 1,
+      semester: academicInfo?['semester'] ?? studentData?['semester'] ?? 1,
 
-    studentCode: studentData?['studentCode']?.toString(),
-    phone: studentData?['phone']?.toString(),
-    facultyName: academicInfo?['facultyName']?.toString(),
-  );
-}
+      studentCode: studentData?['studentCode']?.toString(),
+      phone: studentData?['phone']?.toString(),
+      facultyName: academicInfo?['facultyName']?.toString(),
+      studentId: studentData?['id'] is int
+          ? studentData!['id']
+          : int.tryParse(studentData?['id']?.toString() ?? '0') ?? 0,
+    );
+  }
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -85,6 +96,7 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
     };
   }
 
+  @override
   UserModel copyWith({
     String? id,
     String? name,
@@ -112,24 +124,24 @@ factory UserModel.fromJson(Map<String, dynamic> json) {
       departmentId: departmentId ?? this.departmentId,
       department: department ?? this.department,
       studentCode: studentCode ?? this.studentCode,
-      academicYear: academicYear ?? this.academicYear,
+      academicYear: academicYear ?? super.academicYear,
       phone: phone ?? this.phone,
       nationalId: nationalId ?? this.nationalId,
       gender: gender ?? this.gender,
-      semester: semester ?? this.semester,
+      semester: semester ?? super.semester,
       facultyName: facultyName ?? this.facultyName,
     );
   }
 
   @override
-List<Object?> get props => [
-      ...super.props, // يأخذ خصائص الـ UserEntity
-      studentCode,
-      academicYear,
-      phone,
-      nationalId,
-      gender,
-      semester,
-      facultyName,
-    ];
+  List<Object?> get props => [
+    ...super.props, // يأخذ خصائص الـ UserEntity
+    studentCode,
+    academicYear,
+    phone,
+    nationalId,
+    gender,
+    semester,
+    facultyName,
+  ];
 }

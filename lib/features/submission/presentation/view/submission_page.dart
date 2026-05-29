@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:nuigate/core/app_colors.dart';
-import 'package:nuigate/features/courses/presentation/cubit/courses_cubit.dart';
-import 'package:nuigate/features/courses/presentation/cubit/courses_state.dart';
+import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
+import 'package:nuigate/features/courses/logic/cubit/courses_state.dart';
 import 'package:nuigate/features/submission/data/models/assignment_submission.dart';
-import 'package:nuigate/features/submission/presentation/cubit/assignment_cubit.dart';
-import 'package:nuigate/features/submission/presentation/cubit/assignment_state.dart';
+import 'package:nuigate/features/submission/logic/cubit/assignment_cubit.dart';
+import 'package:nuigate/features/submission/logic/cubit/assignment_state.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 // 🔥 تأكد من استيراد الكوبيت الخاص بالكورسات والموديل الخاص به هنا
-// import 'package:nuigate/features/courses/presentation/cubit/course_cubit.dart';
+// import 'package:nuigate/features/courses/logic/cubit/course_cubit.dart';
 // import 'package:nuigate/features/courses/data/models/course_model.dart';
 
 class SubmissionPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         parsedCourseId = int.parse(_selectedCourse.id.toString());
       }
 
-      print(
+      debugPrint(
         "🎯 جلب التكليفات ديناميكياً للكورس ID: $parsedCourseId (Type: ${parsedCourseId.runtimeType})",
       );
 
@@ -64,8 +64,8 @@ class _SubmissionPageState extends State<SubmissionPage> {
       if (result != null) {
         PlatformFile file = result.files.first;
 
-        print("🎯 تم اختيار الملف: ${file.name}");
-        print("📂 مسار الملف: ${file.path}");
+        debugPrint("🎯 تم اختيار الملف: ${file.name}");
+        debugPrint("📂 مسار الملف: ${file.path}");
 
         // تحديث متغيرات الشاشة لتجهيز الملف للرفع الحقيقي 🚀
         setState(() {
@@ -73,10 +73,10 @@ class _SubmissionPageState extends State<SubmissionPage> {
           _selectedFilePath = file.path;
         });
       } else {
-        print("❌ تم إلغاء اختيار الملف");
+        debugPrint("❌ تم إلغاء اختيار الملف");
       }
     } catch (e) {
-      print("🚨 حدث خطأ أثناء اختيار الملف: $e");
+      debugPrint("🚨 حدث خطأ أثناء اختيار الملف: $e");
     }
   }
 
@@ -185,7 +185,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -199,7 +199,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
 
           // Dropdown المواد أصبح ديناميكي بالكامل ويقرأ من الـ API مباشرة 🎯
           DropdownButtonFormField<dynamic>(
-            value: _selectedCourse,
+            initialValue: _selectedCourse,
             decoration: _getInputDecoration(),
             items: availableCourses
                 .map(
@@ -236,7 +236,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
               }
 
               return DropdownButtonFormField<AssignmentModel>(
-                value: _selectedAssignment,
+                initialValue: _selectedAssignment,
                 hint: Text(
                   state is AssignmentLoading
                       ? 'جاري تحميل التكليفات...'
@@ -342,7 +342,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -384,7 +384,7 @@ class _SubmissionPageState extends State<SubmissionPage> {
                 if (state.assignments.isEmpty) {
                   return const Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16.0),
                       child: Text('لا يوجد تكليفات لهذه المادة'),
                     ),
                   );

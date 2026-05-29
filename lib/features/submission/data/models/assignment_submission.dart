@@ -17,6 +17,7 @@ class AssignmentSubmission {
     required this.grade,
   });
 }
+
 class AssignmentModel {
   final int id;
   final String title;
