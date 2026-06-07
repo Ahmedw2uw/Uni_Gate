@@ -225,13 +225,16 @@ class _ResultsPageState extends State<ResultsPage> {
       final args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-      if (args != null) {
-        final int studentId = args['studentId'] ?? 0;
-        final int semester = args['semester'] ?? 1;
+      final int semester = args?['semester'] ?? 1;
+      final int studentId = args?['studentId'] ?? 0;
 
-        // استدعاء الـ API فوراً بشكل ديناميكي بالبيانات الممررة
+      if (studentId > 0) {
         context.read<ResultsCubit>().fetchStudentResults(
           studentId: studentId,
+          semester: semester,
+        );
+      } else {
+        context.read<ResultsCubit>().fetchCurrentStudentResults(
           semester: semester,
         );
       }

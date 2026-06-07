@@ -6,7 +6,11 @@ abstract class AuthRepository {
   /// محاولة تسجيل الدخول
   /// يرجع UserEntity في حالة النجاح
   /// أو يرمي استثناء في حالة الفشل
-  Future<UserEntity> login({required String email, required String password});
+  Future<UserEntity> login({
+    required String email,
+    required String password,
+    required String nationalId,
+  });
 
   /// الحصول على المستخدم الحالي
   Future<UserEntity?> getCurrentUser();

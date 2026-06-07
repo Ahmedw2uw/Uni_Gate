@@ -38,10 +38,23 @@ class UserModel extends UserEntity {
   /// هل يمكن للمستخدم الوصول للميزات الأكاديمية؟
   bool get canAccessAcademicFeatures => !isApplicant && hasAssignedDepartment;
 
+  static int? _tryParseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final studentData = json['student'] as Map<String, dynamic>?;
     final academicInfo = studentData?['academicInfo'] as Map<String, dynamic>?;
     final deptData = json['department'] as Map<String, dynamic>?;
+    final departmentId =
+        _tryParseInt(deptData?['id']) ??
+        _tryParseInt(studentData?['departmentId']);
+    final departmentName =
+        deptData?['name']?.toString() ??
+        studentData?['departmentNameAr']?.toString() ??
+        studentData?['departmentName']?.toString();
 
     return UserModel(
       id: json['id']?.toString() ?? studentData?['id']?.toString() ?? '',
@@ -53,15 +66,16 @@ class UserModel extends UserEntity {
       email:
           json['email']?.toString() ?? studentData?['email']?.toString() ?? '',
       token: json['token']?.toString(),
+      profileImage:
+          studentData?['profileImageUrl']?.toString() ??
+          json['profileImage']?.toString(),
       role: (json['role'] is List)
           ? (json['role'] as List).join(', ')
           : json['role']?.toString(),
 
       // ✅ التأكد من تحويل الـ ID لـ int بشكل صريح
-      departmentId: deptData?['id'] is int
-          ? deptData!['id']
-          : int.tryParse(deptData?['id']?.toString() ?? '0') ?? 0,
-      department: deptData?['name']?.toString(),
+      departmentId: departmentId,
+      department: departmentName,
 
       // ✅ قراءة السنة والترم
       academicYear:
@@ -70,10 +84,14 @@ class UserModel extends UserEntity {
 
       studentCode: studentData?['studentCode']?.toString(),
       phone: studentData?['phone']?.toString(),
-      facultyName: academicInfo?['facultyName']?.toString(),
-      studentId: studentData?['id'] is int
-          ? studentData!['id']
-          : int.tryParse(studentData?['id']?.toString() ?? '0') ?? 0,
+      nationalId: studentData?['nationalId']?.toString(),
+      gender: studentData?['gender']?.toString(),
+      facultyName:
+          academicInfo?['facultyName']?.toString() ??
+          studentData?['facultyNameAr']?.toString() ??
+          studentData?['facultyName']?.toString(),
+      studentId:
+          _tryParseInt(studentData?['id']) ?? _tryParseInt(json['studentId']),
     );
   }
   Map<String, dynamic> toJson() {
@@ -93,6 +111,7 @@ class UserModel extends UserEntity {
       'gender': gender,
       'semester': semester,
       'facultyName': facultyName,
+      'studentId': studentId,
     };
   }
 
@@ -113,6 +132,7 @@ class UserModel extends UserEntity {
     String? gender,
     int? semester,
     String? facultyName,
+    int? studentId,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -130,6 +150,7 @@ class UserModel extends UserEntity {
       gender: gender ?? this.gender,
       semester: semester ?? super.semester,
       facultyName: facultyName ?? this.facultyName,
+      studentId: studentId ?? this.studentId,
     );
   }
 
@@ -143,5 +164,6 @@ class UserModel extends UserEntity {
     gender,
     semester,
     facultyName,
+    studentId,
   ];
 }

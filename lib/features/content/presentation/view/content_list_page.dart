@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nuigate/features/content/presentation/widgets/content_empty_state.dart';
 
 class ContentListPage extends StatelessWidget {
   const ContentListPage({super.key});
@@ -11,20 +12,17 @@ class ContentListPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Center(
-          child: const Text(
-            'المواد',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        title: const Text(
+          'المواد',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
+        centerTitle: true,
       ),
-      body: const Center(child: Text('قائمة المحتوى')),
+      body: const ContentEmptyState(),
     );
   }
 }
-
-//! strart from hear

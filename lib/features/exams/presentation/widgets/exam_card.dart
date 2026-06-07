@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nuigate/features/exams/data/exam_info.dart';
 import 'package:nuigate/core/app_colors.dart';
+import 'package:nuigate/features/exams/data/exam_info.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class ExamCard extends StatelessWidget {
@@ -11,8 +11,7 @@ class ExamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // التحقق من صلاحية الدخول للامتحان
-    bool canStart = exam.isActive && !exam.alreadySubmitted;
+    final canStart = exam.isActive && !exam.alreadySubmitted;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -42,16 +41,24 @@ class ExamCard extends StatelessWidget {
                   color: AppColors.primary,
                 ),
               ),
-              _buildBadge(exam),
+              _ExamStatusBadge(exam: exam),
             ],
           ),
           const Divider(height: 24),
-          _infoRow(Icons.book_outlined, 'المقرر:', exam.courseName),
-          _infoRow(Icons.person_outline, 'المحاضر:', exam.instructorName),
-          _infoRow(
-            Icons.timer_sharp,
-            'المدة المتاحة:',
-            '${exam.durationMinutes} دقيقة',
+          _ExamInfoRow(
+            icon: Icons.book_outlined,
+            label: 'المقرر:',
+            value: exam.courseName,
+          ),
+          _ExamInfoRow(
+            icon: Icons.person_outline,
+            label: 'المحاضر:',
+            value: exam.instructorName,
+          ),
+          _ExamInfoRow(
+            icon: Icons.timer_sharp,
+            label: 'المدة المتاحة:',
+            value: '${exam.durationMinutes} دقيقة',
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -69,9 +76,7 @@ class ExamCard extends StatelessWidget {
               ),
               onPressed: canStart ? onStart : null,
               child: CustomText(
-                exam.alreadySubmitted
-                    ? 'تم تسليم الإجابة'
-                    : (exam.isActive ? 'بدء الامتحان' : 'غير متاح حالياً'),
+                _buttonLabel,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -82,7 +87,26 @@ class ExamCard extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  String get _buttonLabel {
+    if (exam.alreadySubmitted) return 'تم تسليم الإجابة';
+    if (exam.isActive) return 'بدء الامتحان';
+    return 'غير متاح حاليا';
+  }
+}
+
+class _ExamInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _ExamInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -98,26 +122,46 @@ class ExamCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBadge(ExamInfo exam) {
-    String text = exam.isActive ? 'نشط' : 'مغلق';
-    Color color = exam.isActive ? Colors.green : Colors.red;
-    if (exam.alreadySubmitted) {
-      text = 'مكتمل';
-      color = Colors.blue;
-    }
+class _ExamStatusBadge extends StatelessWidget {
+  final ExamInfo exam;
+
+  const _ExamStatusBadge({required this.exam});
+
+  @override
+  Widget build(BuildContext context) {
+    final status = _resolveStatus();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: status.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: CustomText(
-        text,
+        status.label,
         fontSize: 11,
-        color: color,
+        color: status.color,
         fontWeight: FontWeight.bold,
       ),
     );
   }
+
+  _ExamStatus _resolveStatus() {
+    if (exam.alreadySubmitted) {
+      return const _ExamStatus('مكتمل', Colors.blue);
+    }
+    if (exam.isActive) {
+      return const _ExamStatus('نشط', Colors.green);
+    }
+    return const _ExamStatus('مغلق', Colors.red);
+  }
+}
+
+class _ExamStatus {
+  final String label;
+  final Color color;
+
+  const _ExamStatus(this.label, this.color);
 }

@@ -44,7 +44,11 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// محاولة تسجيل الدخول - النسخة المحدثة (حل جذري)
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({
+    required String email,
+    required String password,
+    required String nationalId,
+  }) async {
     emit(const AuthLoading());
 
     try {
@@ -52,6 +56,7 @@ class AuthCubit extends Cubit<AuthState> {
       final userFromLogin = await loginUseCase(
         email: email,
         password: password,
+        nationalId: nationalId,
       );
 
       // الخطوة ب: حفظ التوكن فوراً لتمكين الطلبات التالية

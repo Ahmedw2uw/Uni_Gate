@@ -24,14 +24,18 @@ class ApiServices {
     _dio = dio ?? _initDio();
     // ✅ Add auth interceptor
     _dio.interceptors.add(AuthInterceptor());
-    _dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestBody: true,
-        responseBody: true,
-        error: true,
-      ),
-    );
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        LogInterceptor(
+          request: false,
+          requestHeader: false,
+          requestBody: false,
+          responseHeader: false,
+          responseBody: false,
+          error: true,
+        ),
+      );
+    }
   }
 
   Dio _initDio() {

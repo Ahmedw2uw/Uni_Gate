@@ -10,9 +10,17 @@ class LoginUseCase {
   LoginUseCase(this.repository);
 
   /// تنفيذ عملية تسجيل الدخول
-  Future<UserEntity> call({required String email, required String password}) {
+  Future<UserEntity> call({
+    required String email,
+    required String password,
+    required String nationalId,
+  }) {
     debugPrint('Executing LoginUseCase with email: $email');
-    return repository.login(email: email, password: password);
+    return repository.login(
+      email: email,
+      password: password,
+      nationalId: nationalId,
+    );
   }
 }
 

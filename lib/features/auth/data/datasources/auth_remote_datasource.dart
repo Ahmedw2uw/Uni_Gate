@@ -5,7 +5,11 @@ import 'package:nuigate/features/courses/data/models/course_model.dart';
 import 'package:nuigate/network/api_services.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login({required String email, required String password});
+  Future<UserModel> login({
+    required String email,
+    required String password,
+    required String nationalId,
+  });
 
   Future<UserModel> register({
     required String name,
@@ -25,14 +29,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> login({
     required String email,
     required String password,
+    required String nationalId,
   }) async {
     try {
       final response = await apiServices.post(
         '/Authentication/login',
-        data: {"email": email, "password": password},
+        data: {"email": email, "password": password, "nationalId": nationalId},
       );
 
-      debugPrint("📥 Login Response: ${response.data}");
+      debugPrint("Login response status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -70,9 +75,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await apiServices.get('/Students/me/profile');
 
-      debugPrint(
-        "📥 Profile Response: ${response.data}",
-      ); // مهم جداً للتأكد من وصول departmentId
+      debugPrint("Profile response status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         return UserModel.fromJson(response.data);
@@ -111,7 +114,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {"userName": name, "email": email, "password": password},
       );
 
-      debugPrint("📥 Register Response: ${response.data}");
+      debugPrint("Register response status: ${response.statusCode}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;

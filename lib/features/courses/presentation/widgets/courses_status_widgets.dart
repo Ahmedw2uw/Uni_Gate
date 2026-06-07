@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
 import 'package:nuigate/core/app_colors.dart';
+import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class CoursesEmptyState extends StatelessWidget {

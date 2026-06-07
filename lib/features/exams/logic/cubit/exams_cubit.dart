@@ -29,10 +29,15 @@ class ExamsCubit extends Cubit<ExamsState> {
   Future<void> startExam(int examId) async {
     emit(ExamQuestionsLoading()); // 💡 يُفضل عمل State مخصصة لتحميل الأسئلة
     try {
-      final response = await apiServices.get('Exam/$examId/start');
+      final response = await apiServices.post('/Exam/$examId/start');
 
       // السيرفر هنا بيرجع Map مباشرة {...} مش List
-      final Map<String, dynamic> data = response.data;
+      if (response.statusCode != 200 || response.data is! Map) {
+        emit(ExamQuestionsFailure("فشل في تحميل أسئلة الامتحان"));
+        return;
+      }
+
+      final data = Map<String, dynamic>.from(response.data as Map);
 
       // بنعمل parse باستخدام الموديل الجديد اللي جواه الـ questions والـ options
       final examStartData = ExamStartResponse.fromJson(data);
@@ -49,7 +54,7 @@ class ExamsCubit extends Cubit<ExamsState> {
     try {
       // إرسال البيانات للسيرفر عبر الـ POST request
       final response = await apiServices.post(
-        'Exam/submit',
+        '/Exam/submit',
         data: submitPayload,
       );
 

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nuigate/features/courses/logic/cubit/courses_state.dart';
-import 'package:nuigate/shared/widgets/app_scaffold.dart';
-
 import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
-import 'course_card.dart';
-import 'courses_status_widgets.dart';
+import 'package:nuigate/features/courses/logic/cubit/courses_state.dart';
+import 'package:nuigate/features/courses/presentation/widgets/courses_list.dart';
+import 'package:nuigate/features/courses/presentation/widgets/courses_status_widgets.dart';
+import 'package:nuigate/shared/widgets/app_scaffold.dart';
 
 class CoursesView extends StatelessWidget {
   const CoursesView({super.key});
@@ -23,7 +22,7 @@ class CoursesView extends StatelessWidget {
           if (state is CoursesUserNotAssigned) {
             return const CoursesEmptyState(
               icon: Icons.hourglass_empty,
-              title: 'عذراً، لم يتم تسكينك في قسم أكاديمي بعد',
+              title: 'عذرا، لم يتم تسكينك في قسم أكاديمي بعد',
               subtitle: 'يرجى الانتظار حتى مراجعة طلبك أو مراجعة شؤون الطلاب.',
               showRetry: true,
             );
@@ -43,19 +42,13 @@ class CoursesView extends StatelessWidget {
               return const CoursesEmptyState(
                 icon: Icons.library_books,
                 title: 'لا توجد مقررات مسجلة',
-                subtitle: 'يبدو أنه لا توجد مقررات مسجلة لك حالياً.',
+                subtitle: 'يبدو أنه لا توجد مقررات مسجلة لك حاليا.',
               );
             }
 
-            return RefreshIndicator(
+            return CoursesList(
+              courses: state.courses,
               onRefresh: () => context.read<CoursesCubit>().fetchCourses(),
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.courses.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 16),
-                itemBuilder: (context, index) =>
-                    CourseCard(course: state.courses[index]),
-              ),
             );
           }
 

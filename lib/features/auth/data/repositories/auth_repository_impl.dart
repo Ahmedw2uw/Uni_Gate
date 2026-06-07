@@ -20,12 +20,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> login({
     required String email,
     required String password,
+    required String nationalId,
   }) async {
     try {
       // استدعاء API للتحقق من بيانات تسجيل الدخول
       var userModel = await remoteDataSource.login(
         email: email,
         password: password,
+        nationalId: nationalId,
       );
 
       // حفظ التوكن والبيانات الأساسية
