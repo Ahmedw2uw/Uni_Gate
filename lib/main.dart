@@ -8,11 +8,19 @@ import 'package:nuigate/features/auth/logic/cubit/auth_cubit.dart';
 import 'package:nuigate/features/auth/logic/cubit/auth_state.dart';
 import 'package:nuigate/features/auth/presentation/view/login_page.dart';
 import 'package:nuigate/features/content/presentation/view/content_list_page.dart';
+import 'package:nuigate/features/courses/logic/cubit/course_registration_cubit.dart';
 import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
+import 'package:nuigate/features/courses/presentation/view/course_registration_page.dart';
 import 'package:nuigate/features/courses/presentation/view/courses_page.dart';
 import 'package:nuigate/features/dashboard/presentation/view/dashboard_page.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_lectures_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_navigation_cubit.dart';
+import 'package:nuigate/features/doctor/presentation/view/doctor_shell_page.dart';
+import 'package:nuigate/features/onboarding/presentation/view/onboarding_page.dart';
 import 'package:nuigate/features/exams/presentation/view/exams_page.dart';
 import 'package:nuigate/features/payment/presentation/view/payment_page.dart';
+import 'package:nuigate/features/payment/logic/cubit/payment_cubit.dart';
 import 'package:nuigate/features/requests/logic/cubit/requests_cubit.dart';
 import 'package:nuigate/features/requests/presentation/view/requests_page.dart';
 import 'package:nuigate/features/results/logic/results_cubit.dart';
@@ -38,11 +46,24 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthCubit>.value(value: ServiceLocator.authCubit),
         BlocProvider<CoursesCubit>.value(value: ServiceLocator.coursesCubit),
+        BlocProvider<CourseRegistrationCubit>.value(
+          value: ServiceLocator.courseRegistrationCubit,
+        ),
         BlocProvider<AssignmentCubit>.value(
           value: ServiceLocator.assignmentCubit,
         ),
         BlocProvider<ResultsCubit>.value(value: ServiceLocator.resultsCubit),
         BlocProvider<RequestsCubit>.value(value: ServiceLocator.requestsCubit),
+        BlocProvider<PaymentCubit>.value(value: ServiceLocator.paymentCubit),
+        BlocProvider<DoctorCoursesCubit>.value(
+          value: ServiceLocator.doctorCoursesCubit,
+        ),
+        BlocProvider<DoctorNavigationCubit>.value(
+          value: ServiceLocator.doctorNavigationCubit,
+        ),
+        BlocProvider<DoctorLecturesCubit>.value(
+          value: ServiceLocator.doctorLecturesCubit,
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -64,6 +85,8 @@ class MyApp extends StatelessWidget {
         ),
         routes: {
           '/login': (ctx) => const LoginPage(),
+          '/home': (ctx) => const _HomeWrapper(),
+          '/onboarding': (ctx) => const OnboardingPage(),
           '/courses': (ctx) => const CoursesPage(),
           '/schedule': (ctx) => const SchedulePage(),
           '/exams': (ctx) => const ExamsPage(),
@@ -72,6 +95,8 @@ class MyApp extends StatelessWidget {
           '/submission': (ctx) => const SubmissionPage(),
           '/payment': (ctx) => const PaymentPage(),
           '/requests': (ctx) => const RequestsPage(),
+          '/course-registration': (ctx) => const CourseRegistrationPage(),
+          '/doctor': (ctx) => const DoctorShellPage(),
         },
         home: const _HomeWrapper(),
       ),
@@ -98,12 +123,19 @@ class _HomeWrapperState extends State<_HomeWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    if (!PrefHelpers.isOnboardingCompleted()) {
+      return const OnboardingPage();
+    }
+
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         if (state is Authenticated) {
           final isAdmin = context.read<AuthCubit>().isAdmin(state);
           if (isAdmin) {
             return const Scaffold(body: Center(child: Text('Admin Dashboard')));
+          }
+          if (context.read<AuthCubit>().isDoctor(state)) {
+            return const DoctorShellPage();
           }
           return const DashboardPage();
         }

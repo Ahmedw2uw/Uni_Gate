@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
-    if (state is AuthSuccess) {
+    if (state is Authenticated) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('تم تسجيل الدخول بنجاح')));

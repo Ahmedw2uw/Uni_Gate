@@ -58,6 +58,14 @@ class ApiServices {
       'Accept': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
     };
+
+    if (kDebugMode) {
+      debugPrint(
+        'DEBUG ApiServices._getHeaders -> token=${token != null ? 'present (len=${token.length})' : 'missing'} '
+        'additionalHeaders=${headers ?? {}}',
+      );
+    }
+
     return {...baseHeaders, ...?headers};
   }
 
@@ -68,11 +76,29 @@ class ApiServices {
     Map<String, dynamic>? headers,
   }) async {
     try {
+      final requestHeaders = _getHeaders(headers: headers);
+      if (kDebugMode) {
+        final sanitizedHeaders = Map<String, dynamic>.from(requestHeaders);
+        if (sanitizedHeaders['Authorization'] != null) {
+          sanitizedHeaders['Authorization'] = 'Bearer <hidden>';
+        }
+        debugPrint(
+          'DEBUG ApiServices.GET -> path=$path query=$queryParameters headers=$sanitizedHeaders',
+        );
+      }
+
       final response = await _dio.get(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders(headers: headers)),
+        options: Options(headers: requestHeaders),
       );
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG ApiServices.GET response -> path=$path status=${response.statusCode} dataType=${response.data.runtimeType}',
+        );
+      }
+
       return response;
     } on SocketException {
       throw 'No Internet connection';
@@ -95,12 +121,29 @@ class ApiServices {
     Map<String, dynamic>? headers,
   }) async {
     try {
+      final requestHeaders = _getHeaders(headers: headers);
+      if (kDebugMode) {
+        final sanitizedHeaders = Map<String, dynamic>.from(requestHeaders);
+        if (sanitizedHeaders['Authorization'] != null) {
+          sanitizedHeaders['Authorization'] = 'Bearer <hidden>';
+        }
+        debugPrint(
+          'DEBUG ApiServices.POST -> path=$path query=$queryParameters headers=$sanitizedHeaders data=$data',
+        );
+      }
+
       final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders(headers: headers)),
+        options: Options(headers: requestHeaders),
       );
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG ApiServices.POST response -> path=$path status=${response.statusCode} data=${response.data}',
+        );
+      }
       return response;
     } on SocketException {
       throw 'No Internet connection';
@@ -117,12 +160,29 @@ class ApiServices {
     Map<String, dynamic>? headers,
   }) async {
     try {
+      final requestHeaders = _getHeaders(headers: headers);
+      if (kDebugMode) {
+        final sanitizedHeaders = Map<String, dynamic>.from(requestHeaders);
+        if (sanitizedHeaders['Authorization'] != null) {
+          sanitizedHeaders['Authorization'] = 'Bearer <hidden>';
+        }
+        debugPrint(
+          'DEBUG ApiServices.PUT -> path=$path query=$queryParameters headers=$sanitizedHeaders data=$data',
+        );
+      }
+
       final response = await _dio.put(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders(headers: headers)),
+        options: Options(headers: requestHeaders),
       );
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG ApiServices.PUT response -> path=$path status=${response.statusCode} data=${response.data}',
+        );
+      }
       return response;
     } on SocketException {
       throw 'No Internet connection';
@@ -139,12 +199,29 @@ class ApiServices {
     Map<String, dynamic>? headers,
   }) async {
     try {
+      final requestHeaders = _getHeaders(headers: headers);
+      if (kDebugMode) {
+        final sanitizedHeaders = Map<String, dynamic>.from(requestHeaders);
+        if (sanitizedHeaders['Authorization'] != null) {
+          sanitizedHeaders['Authorization'] = 'Bearer <hidden>';
+        }
+        debugPrint(
+          'DEBUG ApiServices.DELETE -> path=$path query=$queryParameters headers=$sanitizedHeaders data=$data',
+        );
+      }
+
       final response = await _dio.delete(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders(headers: headers)),
+        options: Options(headers: requestHeaders),
       );
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG ApiServices.DELETE response -> path=$path status=${response.statusCode} data=${response.data}',
+        );
+      }
       return response;
     } on SocketException {
       throw 'No Internet connection';

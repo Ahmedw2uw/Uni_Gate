@@ -3,13 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nuigate/features/auth/domain/entities/user_entity.dart';
 import 'package:nuigate/features/auth/logic/cubit/auth_cubit.dart';
 import 'package:nuigate/features/auth/logic/cubit/auth_state.dart';
+import 'package:nuigate/features/courses/domain/entities/course_entity.dart';
 import 'package:nuigate/features/courses/domain/usecases/courses_usecases.dart';
 import 'courses_state.dart';
 
 class CoursesCubit extends Cubit<CoursesState> {
   final GetCoursesUseCase getCoursesUseCase;
   final GetCourseByIdUseCase getCourseByIdUseCase;
-  final SearchCoursesUseCase searchCoursesUseCase;
+  final GetCourseWithContentUseCase getCourseWithContentUseCase;
+  final GetCourseContentUseCase getCourseContentUseCase;
+  final GetMyCoursesUseCase getMyCoursesUseCase;
   final AuthCubit authCubit;
 
   String? _currentCourseId;
@@ -17,7 +20,9 @@ class CoursesCubit extends Cubit<CoursesState> {
   CoursesCubit({
     required this.getCoursesUseCase,
     required this.getCourseByIdUseCase,
-    required this.searchCoursesUseCase,
+    required this.getCourseWithContentUseCase,
+    required this.getCourseContentUseCase,
+    required this.getMyCoursesUseCase,
     required this.authCubit,
   }) : super(const CoursesInitial());
 
@@ -30,7 +35,10 @@ class CoursesCubit extends Cubit<CoursesState> {
       UserEntity? user;
       if (authState is AuthSuccess) user = authState.user;
       if (authState is Authenticated) user = authState.user;
-      if (user == null) return;
+      if (user == null) {
+        emit(const CoursesFailure(message: 'يجب تسجيل الدخول لعرض المقررات'));
+        return;
+      }
 
       final int? deptId = user.departmentId;
       if (deptId == null || deptId == 0) {
@@ -54,15 +62,13 @@ class CoursesCubit extends Cubit<CoursesState> {
     }
   }
 
-  Future<void> searchCourses(String query) async {
-    if (query.isEmpty) {
-      await fetchCourses();
-      return;
-    }
+  Future<void> fetchMyCourses() async {
+    if (state is CoursesLoading) return;
     emit(const CoursesLoading());
+
     try {
-      final allCourses = await searchCoursesUseCase(query);
-      emit(CoursesSuccess(courses: allCourses));
+      final courses = await getMyCoursesUseCase();
+      emit(CoursesSuccess(courses: courses));
     } catch (e) {
       emit(CoursesFailure(message: e.toString()));
     }
@@ -82,11 +88,49 @@ class CoursesCubit extends Cubit<CoursesState> {
     emit(const CourseContentLoading());
 
     try {
-      final courseDetails = await getCourseByIdUseCase(courseId);
+      final authState = authCubit.state;
+      UserEntity? user;
+      if (authState is AuthSuccess) user = authState.user;
+      if (authState is Authenticated) user = authState.user;
+
+      final int? studentId = user?.studentId ?? int.tryParse(user?.id ?? '');
 
       if (kDebugMode) {
         debugPrint(
-          "DEBUG: Course Details Retrieved -> ${courseDetails.id}, ${courseDetails.name}",
+          'DEBUG fetchCourseContent -> authUserId=${user?.id} '
+          'authUserStudentId=${user?.studentId} '
+          'resolvedStudentId=$studentId '
+          'courseId=$courseId',
+        );
+      }
+
+      if (studentId == null || studentId <= 0) {
+        emit(
+          const CourseContentFailure(
+            message: 'لا يوجد معرف طالب صالح للوصول للمحتوى',
+          ),
+        );
+        return;
+      }
+
+      late final CourseEntity courseDetails;
+      try {
+        courseDetails = await getCourseWithContentUseCase(courseId);
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint(
+            'DEBUG: getCourseWithContent failed, fallback to student-specific content: $e',
+          );
+        }
+        courseDetails = await getCourseContentUseCase(
+          studentId: studentId.toString(),
+          courseId: courseId,
+        );
+      }
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG: Course Details Retrieved -> ${courseDetails.id}, ${courseDetails.name}',
         );
       }
 
@@ -98,7 +142,7 @@ class CoursesCubit extends Cubit<CoursesState> {
       );
     } catch (e) {
       if (kDebugMode) {
-        debugPrint("ERROR in fetchCourseContent: $e");
+        debugPrint('ERROR in fetchCourseContent: $e');
       }
 
       String errorMessage = 'حدث خطأ أثناء جلب البيانات';

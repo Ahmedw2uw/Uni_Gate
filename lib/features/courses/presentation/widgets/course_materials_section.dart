@@ -1,50 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:nuigate/features/courses/data/models/course_content_model.dart';
 import 'package:nuigate/features/courses/presentation/widgets/course_material_tile.dart';
+import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class CourseMaterialsSection extends StatelessWidget {
   final dynamic courseContent;
 
   const CourseMaterialsSection({super.key, required this.courseContent});
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CourseMaterialTile(
-          icon: Icons.video_library,
-          title: 'محاضرات الفيديو',
-          subtitle: 'المحاضرات المسجلة للمقرر',
-          onTap: () => _showComingSoon(context, 'سيتم إضافة الفيديوهات قريبا'),
-        ),
-        const SizedBox(height: 12),
-        CourseMaterialTile(
-          icon: Icons.file_present,
-          title: 'المواد والملفات',
-          subtitle: 'الملاحظات والملفات الدراسية',
-          onTap: () => _showComingSoon(context, 'سيتم إضافة الملفات قريبا'),
-        ),
-        const SizedBox(height: 12),
-        CourseMaterialTile(
-          icon: Icons.assignment,
-          title: 'الواجبات والمشاريع',
-          subtitle: 'الواجبات والتكاليف الدراسية',
-          onTap: () => _showComingSoon(context, 'سيتم إضافة الواجبات قريبا'),
-        ),
-        const SizedBox(height: 12),
-        CourseMaterialTile(
-          icon: Icons.quiz,
-          title: 'الاختبارات',
-          subtitle: 'الامتحانات والاختبارات القصيرة',
-          onTap: () => _showComingSoon(context, 'سيتم إضافة الاختبارات قريبا'),
-        ),
-        const SizedBox(height: 24),
-      ],
+  List<CourseContentModel> _extractContents(dynamic content) {
+    if (content == null) return [];
+    if (content is List) {
+      return content
+          .whereType<Map<String, dynamic>>()
+          .map((e) => CourseContentModel.fromJson(e))
+          .toList();
+    }
+    if (content is Map<String, dynamic>) {
+      final list = content['contents'] ?? content['data'];
+      if (list is List) {
+        return list
+            .whereType<Map<String, dynamic>>()
+            .map((e) => CourseContentModel.fromJson(e))
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  IconData _iconForType(String? type) {
+    final t = type?.toLowerCase() ?? '';
+    if (t.contains('video')) return Icons.video_library;
+    if (t.contains('pdf') || t.contains('file')) return Icons.file_present;
+    if (t.contains('summary') || t.contains('ملخص')) return Icons.summarize;
+    if (t.contains('ref') || t.contains('مرجع')) return Icons.book;
+    return Icons.school;
+  }
+
+  void _openContent(BuildContext context, CourseContentModel content) {
+    final url = content.fileUrl;
+    if (url == null || url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('رابط المحتوى غير متاح')),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('فتح: ${content.lectureName}')),
     );
   }
 
-  void _showComingSoon(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+  @override
+  Widget build(BuildContext context) {
+    final contents = _extractContents(courseContent);
+
+    if (contents.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.folder_open, size: 48, color: Colors.grey),
+              SizedBox(height: 12),
+              CustomText(
+                'لا يوجد محتوى متاح حالياً',
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...contents.map((content) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: CourseMaterialTile(
+              icon: _iconForType(content.contentType),
+              title: content.lectureName,
+              subtitle: content.contentType ?? 'محاضرة',
+              onTap: () => _openContent(context, content),
+            ),
+          );
+        }),
+      ],
+    );
   }
 }

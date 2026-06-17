@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
+import 'package:nuigate/features/courses/presentation/view/course_registration_page.dart';
 import 'package:nuigate/features/courses/presentation/widgets/courses_view.dart';
 
 class CoursesPage extends StatefulWidget {
@@ -23,6 +24,19 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CoursesView();
+    return Scaffold(
+      body: const CoursesView(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const CourseRegistrationPage(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('تسجيل مقررات جديدة'),
+      ),
+    );
   }
 }

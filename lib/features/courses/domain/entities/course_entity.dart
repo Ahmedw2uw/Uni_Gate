@@ -3,10 +3,14 @@ import 'package:equatable/equatable.dart';
 class CourseEntity extends Equatable {
   final String id;
   final String name;
-  final String instructor;
   final String code;
   final int creditHours;
   final double price;
+  final String instructor;
+  final int? instructorId;
+  final int? departmentId;
+  final int? academicYear;
+  final int? semester;
   final dynamic content;
   final String? title;
   final String? description;
@@ -14,10 +18,14 @@ class CourseEntity extends Equatable {
   const CourseEntity({
     required this.id,
     required this.name,
-    required this.instructor,
     required this.code,
     required this.creditHours,
     required this.price,
+    this.instructor = '',
+    this.instructorId,
+    this.departmentId,
+    this.academicYear,
+    this.semester,
     this.content,
     this.title,
     this.description,
@@ -27,10 +35,14 @@ class CourseEntity extends Equatable {
   List<Object?> get props => [
     id,
     name,
-    instructor,
     code,
     creditHours,
     price,
+    instructor,
+    instructorId,
+    departmentId,
+    academicYear,
+    semester,
     content,
     title,
     description,

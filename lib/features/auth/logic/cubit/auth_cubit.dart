@@ -91,8 +91,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       await logoutUseCase();
-      // حذف جميع البيانات المحفوظة
+      // حذف جميع بيانات الجلسة والمصادقة
       await PrefHelpers.clearAuthData();
+      // إعادة عرض onboarding بعد تسجيل الخروج
+      await PrefHelpers.saveOnboardingCompleted(false);
       emit(const AuthLoggedOut());
       emit(const Unauthenticated());
     } catch (e) {
@@ -105,5 +107,11 @@ class AuthCubit extends Cubit<AuthState> {
       return state.user.role?.toLowerCase() == 'admin';
     }
     return false;
+  }
+
+  bool isDoctor(AuthState state) {
+    if (state is! Authenticated) return false;
+    final role = state.user.role?.toLowerCase() ?? '';
+    return role.contains('doctor') || role.contains('instructor');
   }
 }

@@ -7,7 +7,6 @@ class UserModel extends UserEntity {
   final String? nationalId;
   final String? gender;
   final String? facultyName;
-  final int? studentId; // 🌟 ضيف السطر ده هنا لحفظ الـ ID الرقمي (2626)
   const UserModel({
     required super.id,
     required super.name,
@@ -24,7 +23,7 @@ class UserModel extends UserEntity {
     this.gender, // جديد
     super.semester, // جديد
     this.facultyName,
-    this.studentId, // جديد
+    super.studentId,
   });
 
   // ========== الـ Getters الدفاعية للتأمين الأكاديمي ==========

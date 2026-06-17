@@ -6,11 +6,22 @@ import 'package:nuigate/features/auth/logic/cubit/auth_cubit.dart';
 import 'package:nuigate/features/courses/data/datasources/courses_remote_datasource.dart';
 import 'package:nuigate/features/courses/data/repositories/courses_repository_impl.dart';
 import 'package:nuigate/features/courses/domain/usecases/courses_usecases.dart';
+import 'package:nuigate/features/courses/logic/cubit/course_registration_cubit.dart';
 import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
 import 'package:nuigate/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:nuigate/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:nuigate/features/dashboard/logic/cubit/dashboard_cubit.dart';
+import 'package:nuigate/features/doctor/data/datasources/doctor_remote_datasource.dart';
+import 'package:nuigate/features/doctor/data/repositories/doctor_repository_impl.dart';
+import 'package:nuigate/features/doctor/domain/usecases/doctor_usecases.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_lectures_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_navigation_cubit.dart';
 import 'package:nuigate/features/exams/logic/cubit/exams_cubit.dart';
+import 'package:nuigate/features/payment/data/datasources/payment_remote_datasource.dart';
+import 'package:nuigate/features/payment/data/repositories/payment_repository_impl.dart';
+import 'package:nuigate/features/payment/domain/usecases/payment_usecases.dart';
+import 'package:nuigate/features/payment/logic/cubit/payment_cubit.dart';
 import 'package:nuigate/features/requests/logic/cubit/requests_cubit.dart';
 import 'package:nuigate/features/results/logic/results_cubit.dart';
 import 'package:nuigate/features/submission/logic/cubit/assignment_cubit.dart';
@@ -18,17 +29,19 @@ import 'package:nuigate/network/api_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceLocator {
-  // 1. تعريف المتغيرات الثابتة (Getters)
   static late AuthCubit _authCubit;
   static AuthCubit get authCubit => _authCubit;
 
   static late CoursesCubit _coursesCubit;
   static CoursesCubit get coursesCubit => _coursesCubit;
 
+  static late CourseRegistrationCubit _courseRegistrationCubit;
+  static CourseRegistrationCubit get courseRegistrationCubit =>
+      _courseRegistrationCubit;
+
   static late DashboardCubit _dashboardCubit;
   static DashboardCubit get dashboardCubit => _dashboardCubit;
 
-  // إضافة الـ ExamsCubit بنفس أسلوب مشروعك
   static late ExamsCubit _examsCubit;
   static ExamsCubit get examsCubit => _examsCubit;
 
@@ -38,11 +51,22 @@ class ServiceLocator {
   static ResultsCubit get resultsCubit => _resultsCubit;
   static late RequestsCubit _requestsCubit;
   static RequestsCubit get requestsCubit => _requestsCubit;
-  static Future<void> init() async {
-    // 1. External Dependencies
-    final sharedPreferences = await SharedPreferences.getInstance();
 
-    // 2. Core
+  static late PaymentCubit _paymentCubit;
+  static PaymentCubit get paymentCubit => _paymentCubit;
+
+  static late DoctorCoursesCubit _doctorCoursesCubit;
+  static DoctorCoursesCubit get doctorCoursesCubit => _doctorCoursesCubit;
+
+  static late DoctorNavigationCubit _doctorNavigationCubit;
+  static DoctorNavigationCubit get doctorNavigationCubit =>
+      _doctorNavigationCubit;
+
+  static late DoctorLecturesCubit _doctorLecturesCubit;
+  static DoctorLecturesCubit get doctorLecturesCubit => _doctorLecturesCubit;
+
+  static Future<void> init() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
     final apiServices = ApiServices();
 
     // ============= Auth Feature =============
@@ -69,8 +93,20 @@ class ServiceLocator {
     _coursesCubit = CoursesCubit(
       getCoursesUseCase: GetCoursesUseCase(coursesRepository),
       getCourseByIdUseCase: GetCourseByIdUseCase(coursesRepository),
-      searchCoursesUseCase: SearchCoursesUseCase(coursesRepository),
+      getCourseWithContentUseCase: GetCourseWithContentUseCase(
+        coursesRepository,
+      ),
+      getCourseContentUseCase: GetCourseContentUseCase(coursesRepository),
+      getMyCoursesUseCase: GetMyCoursesUseCase(coursesRepository),
       authCubit: _authCubit,
+    );
+
+    _courseRegistrationCubit = CourseRegistrationCubit(
+      getAvailableCoursesUseCase: GetAvailableCoursesUseCase(coursesRepository),
+      registerCoursesUseCase: RegisterCoursesUseCase(coursesRepository),
+      dropCourseUseCase: DropCourseUseCase(coursesRepository),
+      confirmCoursesUseCase: ConfirmCoursesUseCase(coursesRepository),
+      checkCourseExistsUseCase: CheckCourseExistsUseCase(coursesRepository),
     );
 
     // ============= Dashboard Feature =============
@@ -82,22 +118,33 @@ class ServiceLocator {
     );
     _dashboardCubit = DashboardCubit(dashboardRepository);
 
-    // ============= Exams Feature (التعديل الجديد) =============
-    // نقوم بتعريف الـ Cubit وتمرير الـ apiServices له مباشرة كما في الأعلى
+    // ============= Exams Feature =============
     _examsCubit = ExamsCubit(apiServices);
 
-    // 2. أضف الـ Getter الخاص بالـ AssignmentCubit هنا 🔑
-
-    // ============= Assignment Feature (إضافة التكليفات) =============
-    // 3. قم بتهيئة الـ Cubit وتمرير ما يحتاجه (سواء الـ apiServices مباشرة أو الـ Repository)
-    // على سبيل المثال إذا كان يعتمد على ريبوزيتوري:
-    // final assignmentRemoteDataSource = AssignmentRemoteDataSourceImpl(apiServices);
-    // final assignmentRepository = AssignmentRepositoryImpl(assignmentRemoteDataSource);
-    // _assignmentCubit = AssignmentCubit(assignmentRepository);
-
-    // أو إذا كان يستقبل الـ apiServices مباشرة مثل الـ Exams:
+    // ============= Assignment Feature =============
     _assignmentCubit = AssignmentCubit(apiServices);
     _resultsCubit = ResultsCubit(apiServices);
     _requestsCubit = RequestsCubit(apiServices);
+
+    // ============= Doctor Feature =============
+    final doctorRemoteDataSource = DoctorRemoteDataSourceImpl(apiServices);
+    final doctorRepository = DoctorRepositoryImpl(doctorRemoteDataSource);
+    _doctorCoursesCubit = DoctorCoursesCubit(
+      getInstructorCoursesUseCase: GetInstructorCoursesUseCase(
+        doctorRepository,
+      ),
+    );
+    _doctorNavigationCubit = DoctorNavigationCubit();
+    _doctorLecturesCubit = DoctorLecturesCubit(apiServices);
+
+    // ============= Payment Feature =============
+    final paymentRemoteDataSource = PaymentRemoteDataSourceImpl(apiServices);
+    final paymentRepository = PaymentRepositoryImpl(paymentRemoteDataSource);
+    _paymentCubit = PaymentCubit(
+      getMyPaymentsUseCase: GetMyPaymentsUseCase(paymentRepository),
+      checkoutUseCase: CheckoutUseCase(paymentRepository),
+      refundRequestUseCase: RefundRequestUseCase(paymentRepository),
+      getPaymentSuccessUseCase: GetPaymentSuccessUseCase(paymentRepository),
+    );
   }
 }

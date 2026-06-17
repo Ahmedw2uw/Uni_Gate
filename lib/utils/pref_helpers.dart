@@ -17,6 +17,7 @@ class PrefHelpers {
   static const String _userRoleKey = 'user_role';
   static const String _userIdKey = 'user_id';
   static const String _profileImageKey = 'profile_image';
+  static const String _onboardingCompletedKey = 'onboarding_completed';
 
   // ===== Token Management =====
 
@@ -165,5 +166,15 @@ class PrefHelpers {
   /// التحقق من تسجيل دخول المستخدم
   static bool isLoggedIn() {
     return hasToken();
+  }
+
+  /// حفظ حالة إكمال onboarding
+  static Future<bool> saveOnboardingCompleted(bool completed) async {
+    return await _prefs.setBool(_onboardingCompletedKey, completed);
+  }
+
+  /// التحقق من أن المستخدم أنهى onboarding
+  static bool isOnboardingCompleted() {
+    return _prefs.getBool(_onboardingCompletedKey) ?? false;
   }
 }

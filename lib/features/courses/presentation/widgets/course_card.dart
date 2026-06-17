@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nuigate/core/app_colors.dart';
-import 'package:nuigate/core/service_locator.dart';
 import 'package:nuigate/features/courses/domain/entities/course_entity.dart';
+import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
 import 'package:nuigate/features/courses/logic/cubit/courses_state.dart';
 import 'package:nuigate/features/courses/presentation/view/course_content_page.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -66,7 +67,9 @@ class _ViewContentButton extends StatelessWidget {
         ),
         onPressed: () async {
           debugPrint('Course ID: $courseId, Course Name: $courseName');
-          ServiceLocator.coursesCubit.fetchCourseContent(courseId);
+          context.read<CoursesCubit>().fetchCourseContent(courseId);
+
+          final cubit = context.read<CoursesCubit>();
 
           await Navigator.push(
             context,
@@ -76,9 +79,9 @@ class _ViewContentButton extends StatelessWidget {
             ),
           );
 
-          if (ServiceLocator.coursesCubit.state is CourseContentSuccess ||
-              ServiceLocator.coursesCubit.state is CourseContentFailure) {
-            ServiceLocator.coursesCubit.fetchCourses();
+          if (cubit.state is CourseContentSuccess ||
+              cubit.state is CourseContentFailure) {
+            cubit.fetchCourses();
           }
         },
         child: const CustomText(
