@@ -302,8 +302,13 @@ Completed or heavily improved:
   - `DoctorShellPage` now owns the mobile doctor layout with an RTL side drawer.
   - `DoctorNavigationCubit` controls tabs: dashboard, assignments, lectures, and exams.
   - Dashboard course cards are now displayed as full-width vertical cards to avoid mobile overflow.
-  - Lectures tab now supports selecting PDF/video files, uploading lectures to `/api/instructor/courses/{courseId}/lectures`, reloading the lecture list from course details, deleting lectures, and opening uploaded files via their `fileUrl` or download endpoint.
-  - Assignments and exams currently have placeholders until their detailed screenshots are provided.
+  - Lectures tab now supports selecting PDF/video files, uploading lectures to `/api/instructor/courses/{courseId}/lectures`, reloading the lecture list from course details, deleting lectures, and downloading/opening uploaded files through a dedicated row action.
+  - Lecture deletion treats both `200 OK` and `204 No Content` as success because the backend returns `204` for `DELETE /api/instructor/courses/{courseId}/lectures/{lectureId}`.
+  - Lecture file access uses `fileUrl` when present, otherwise it falls back to `GET /api/instructor/courses/{courseId}/lectures/{lectureId}/download`; this avoids adding an expensive in-app PDF/video viewer at this stage.
+  - Submissions tab now displays a table-style grading screen for student submissions, matching the instructor dashboard design direction.
+  - Submission grading now uses `PATCH /api/instructor/courses/submissions/{submissionId}/grade` with `grade` and `feedback`.
+  - Submission file opening now uses `GET /api/instructor/courses/submissions/{submissionId}` to resolve `fileUrl`, because Swagger does not define a separate submission download endpoint.
+  - Assignments and exams have initial working screens; continue polishing them screen-by-screen from the provided screenshots.
 
 - Profile:
   - `profile_header_card.dart`

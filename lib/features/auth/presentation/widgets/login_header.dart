@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
@@ -11,30 +12,30 @@ class LoginHeader extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 6,
+                  blurRadius: 6.r,
                 ),
               ],
             ),
-            child: const ImageIcon(
-              AssetImage('assets/p_icon.png'),
-              size: 48,
+            child: ImageIcon(
+              const AssetImage('assets/p_icon.png'),
+              size: 48.r,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           const CustomText(
-            'بوابة الطالب',
+            'بوابة الدخول',
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           const CustomText('تسجيل الدخول', fontSize: 14, color: Colors.black54),
         ],
       ),

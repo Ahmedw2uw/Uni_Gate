@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 
 class AuthBackground extends StatelessWidget {
@@ -26,7 +27,7 @@ class AuthBackground extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
                 child: child,
               ),
             ),

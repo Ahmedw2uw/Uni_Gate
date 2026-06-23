@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/auth/data/models/user_model.dart';
 import 'package:nuigate/features/profile/presentation/widgets/profile_header_card.dart';
 import 'package:nuigate/features/profile/presentation/widgets/profile_sections_card.dart';
@@ -24,11 +25,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return AppScaffold(
       title: 'الملف الشخصي',
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         child: Column(
           children: [
             ProfileHeaderCard(user: user),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             ProfileSectionsCard(
               personalExpanded: _personalExpanded,
               academicExpanded: _academicExpanded,

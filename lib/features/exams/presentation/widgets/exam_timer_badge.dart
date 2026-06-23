@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
@@ -13,15 +14,16 @@ class ExamTimerBadge extends StatelessWidget {
     final color = lowTime ? Colors.red : AppColors.primary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.timer, size: 16, color: color),
-          const SizedBox(width: 4),
+          Icon(Icons.timer, size: 16.r, color: color),
+          SizedBox(width: 4.w),
           CustomText(
             _formatDuration(remaining),
             color: color,

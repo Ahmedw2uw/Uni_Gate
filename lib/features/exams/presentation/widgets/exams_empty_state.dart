@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class ExamsEmptyState extends StatelessWidget {
@@ -9,6 +10,16 @@ class ExamsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: CustomText(message, color: color));
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.r),
+        child: CustomText(
+          message,
+          color: color,
+          fontSize: 15,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 }

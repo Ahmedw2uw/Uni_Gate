@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/auth/data/models/user_model.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -12,39 +13,41 @@ class ProfileHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            blurRadius: 15.r,
+            offset: Offset(0, 5.h),
           ),
         ],
       ),
       child: Column(
         children: [
           CircleAvatar(
-            radius: 50,
+            radius: 50.r,
             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             backgroundImage: user.profileImage != null
                 ? NetworkImage(user.profileImage!)
                 : null,
             child: user.profileImage == null
-                ? const Icon(Icons.person, size: 50, color: AppColors.primary)
+                ? Icon(Icons.person, size: 50.r, color: AppColors.primary)
                 : null,
           ),
-          const SizedBox(height: 15),
+          SizedBox(height: 15.h),
           CustomText(
             user.name,
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: 5.h),
           CustomText(
             user.studentCode ?? '',
             color: Colors.grey,

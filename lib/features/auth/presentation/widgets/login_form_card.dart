@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/auth/presentation/widgets/login_header.dart';
 import 'package:nuigate/shared/widgets/app_text_field.dart';
@@ -29,22 +30,25 @@ class LoginFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final maxCardWidth = screenWidth > 600 ? 420.w : screenWidth;
 
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: width > 600 ? 420 : width),
+      constraints: BoxConstraints(maxWidth: maxCardWidth),
       child: Card(
         color: Colors.white,
         elevation: 6,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 28.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const LoginHeader(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               AppTextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -53,7 +57,7 @@ class LoginFormCard extends StatelessWidget {
                 hintText: 'example@email.com',
                 labelText: 'البريد الإلكتروني',
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               AppTextField(
                 controller: nationalIdController,
                 keyboardType: TextInputType.number,
@@ -61,7 +65,7 @@ class LoginFormCard extends StatelessWidget {
                 prefixIcon: const Icon(Icons.badge_outlined),
                 labelText: 'الرقم القومي',
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               AppTextField(
                 controller: passwordController,
                 obscureText: obscurePassword,
@@ -75,7 +79,7 @@ class LoginFormCard extends StatelessWidget {
                   onPressed: isLoading ? null : onTogglePassword,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18.h),
               PrimaryButton(
                 onPressed: onSubmit,
                 isLoading: isLoading,
@@ -87,7 +91,7 @@ class LoginFormCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Center(
                 child: TextButton(
                   onPressed: isLoading ? null : onForgotPassword,

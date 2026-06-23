@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/courses/domain/entities/course_entity.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -18,24 +19,24 @@ class AvailableCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: EdgeInsets.symmetric(vertical: 6.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isSelected ? AppColors.primary : Colors.grey[200]!,
-          width: isSelected ? 2 : 1,
+          width: isSelected ? 2.w : 1.w,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            blurRadius: 8.r,
+            offset: Offset(0, 3.h),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14.r),
         child: Row(
           children: [
             Checkbox(
@@ -43,7 +44,7 @@ class AvailableCourseCard extends StatelessWidget {
               onChanged: onToggle,
               activeColor: AppColors.primary,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,30 +54,40 @@ class AvailableCourseCard extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   CustomText(
                     'الكود: ${course.code}',
                     fontSize: 12,
                     color: Colors.black54,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (course.instructor.isNotEmpty)
                     CustomText(
                       'الدكتور: ${course.instructor}',
                       fontSize: 12,
                       color: Colors.black54,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
             ),
+            SizedBox(width: 8.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 4.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: CustomText(
                     '${course.creditHours} ساعة',
@@ -85,7 +96,7 @@ class AvailableCourseCard extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 CustomText(
                   '${course.price.toStringAsFixed(0)} ج.م',
                   fontSize: 12,

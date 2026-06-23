@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/courses/domain/entities/course_entity.dart';
 import 'package:nuigate/features/courses/presentation/widgets/course_info_card.dart';
@@ -22,9 +23,9 @@ class CourseContentView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CourseInfoCard(course: course),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -34,7 +35,7 @@ class CourseContentView extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 CourseMaterialsSection(courseContent: courseContent),
               ],
             ),

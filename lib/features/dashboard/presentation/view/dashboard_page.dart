@@ -46,7 +46,7 @@ class DashboardPage extends StatelessWidget {
       builder: (ctx) {
         return AlertDialog(
           title: const Text('تأكيد الخروج'),
-          content: const Text('هل تريد تسجيل الخروج فعلاً؟'),
+          content: const Text('هل تريد تسجيل الخروج فعلا؟'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),

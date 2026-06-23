@@ -17,6 +17,9 @@ import 'package:nuigate/features/doctor/domain/usecases/doctor_usecases.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_cubit.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_lectures_cubit.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_navigation_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_assignments_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_exams_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_submissions_cubit.dart';
 import 'package:nuigate/features/exams/logic/cubit/exams_cubit.dart';
 import 'package:nuigate/features/payment/data/datasources/payment_remote_datasource.dart';
 import 'package:nuigate/features/payment/data/repositories/payment_repository_impl.dart';
@@ -64,6 +67,17 @@ class ServiceLocator {
 
   static late DoctorLecturesCubit _doctorLecturesCubit;
   static DoctorLecturesCubit get doctorLecturesCubit => _doctorLecturesCubit;
+
+  static late DoctorAssignmentsCubit _doctorAssignmentsCubit;
+  static DoctorAssignmentsCubit get doctorAssignmentsCubit =>
+      _doctorAssignmentsCubit;
+
+  static late DoctorExamsCubit _doctorExamsCubit;
+  static DoctorExamsCubit get doctorExamsCubit => _doctorExamsCubit;
+
+  static late DoctorSubmissionsCubit _doctorSubmissionsCubit;
+  static DoctorSubmissionsCubit get doctorSubmissionsCubit =>
+      _doctorSubmissionsCubit;
 
   static Future<void> init() async {
     final sharedPreferences = await SharedPreferences.getInstance();
@@ -125,6 +139,9 @@ class ServiceLocator {
     _assignmentCubit = AssignmentCubit(apiServices);
     _resultsCubit = ResultsCubit(apiServices);
     _requestsCubit = RequestsCubit(apiServices);
+    _doctorAssignmentsCubit = DoctorAssignmentsCubit(apiServices);
+    _doctorExamsCubit = DoctorExamsCubit(apiServices);
+    _doctorSubmissionsCubit = DoctorSubmissionsCubit(apiServices);
 
     // ============= Doctor Feature =============
     final doctorRemoteDataSource = DoctorRemoteDataSourceImpl(apiServices);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/exams/data/exam_info.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -14,16 +15,16 @@ class ExamCard extends StatelessWidget {
     final canStart = exam.isActive && !exam.alreadySubmitted;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 12.r,
+            offset: Offset(0, 4.h),
           ),
         ],
       ),
@@ -31,7 +32,7 @@ class ExamCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: CustomText(
@@ -39,12 +40,15 @@ class ExamCard extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: AppColors.primary,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              SizedBox(width: 8.w),
               _ExamStatusBadge(exam: exam),
             ],
           ),
-          const Divider(height: 24),
+          Divider(height: 24.h),
           _ExamInfoRow(
             icon: Icons.book_outlined,
             label: 'المقرر:',
@@ -60,17 +64,17 @@ class ExamCard extends StatelessWidget {
             label: 'المدة المتاحة:',
             value: '${exam.durationMinutes} دقيقة',
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 48.h,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: canStart
                     ? const Color(0xFF10B981)
                     : Colors.grey.shade400,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 elevation: 0,
               ),
@@ -79,6 +83,7 @@ class ExamCard extends StatelessWidget {
                 _buttonLabel,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
               ),
             ),
           ),
@@ -108,15 +113,26 @@ class _ExamInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: AppColors.primary.withValues(alpha: 0.6)),
-          const SizedBox(width: 8),
+          Icon(
+            icon,
+            size: 18.r,
+            color: AppColors.primary.withValues(alpha: 0.6),
+          ),
+          SizedBox(width: 8.w),
           CustomText(label, fontSize: 13, color: Colors.grey.shade600),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Expanded(
-            child: CustomText(value, fontSize: 13, fontWeight: FontWeight.w600),
+            child: CustomText(
+              value,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -134,10 +150,10 @@ class _ExamStatusBadge extends StatelessWidget {
     final status = _resolveStatus();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: status.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: CustomText(
         status.label,
@@ -149,12 +165,8 @@ class _ExamStatusBadge extends StatelessWidget {
   }
 
   _ExamStatus _resolveStatus() {
-    if (exam.alreadySubmitted) {
-      return const _ExamStatus('مكتمل', Colors.blue);
-    }
-    if (exam.isActive) {
-      return const _ExamStatus('نشط', Colors.green);
-    }
+    if (exam.alreadySubmitted) return const _ExamStatus('مكتمل', Colors.blue);
+    if (exam.isActive) return const _ExamStatus('نشط', Colors.green);
     return const _ExamStatus('مغلق', Colors.red);
   }
 }

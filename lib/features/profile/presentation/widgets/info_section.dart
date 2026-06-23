@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
@@ -23,7 +24,7 @@ class ProfileInfoSection extends StatelessWidget {
         InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.r),
             child: Row(
               children: [
                 Expanded(
@@ -38,6 +39,7 @@ class ProfileInfoSection extends StatelessWidget {
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   color: AppColors.primary,
+                  size: 24.r,
                 ),
               ],
             ),
@@ -45,10 +47,10 @@ class ProfileInfoSection extends StatelessWidget {
         ),
         if (isExpanded)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
             child: Column(
               children: details
-                  .map((item) => _buildRow(item['label']!, item['value']!))
+                  .map((item) => _InfoRow(item['label']!, item['value']!))
                   .toList(),
             ),
           ),
@@ -56,19 +58,35 @@ class ProfileInfoSection extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildRow(String label, String value) {
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoRow(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 3,
             child: CustomText(label, fontSize: 14, color: Colors.black54),
           ),
+          SizedBox(width: 8.w),
           Expanded(
             flex: 4,
-            child: CustomText(value, fontSize: 14, fontWeight: FontWeight.w600),
+            child: CustomText(
+              value,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

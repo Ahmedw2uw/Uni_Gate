@@ -191,6 +191,44 @@ class ApiServices {
     }
   }
 
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  }) async {
+    try {
+      final requestHeaders = _getHeaders(headers: headers);
+      if (kDebugMode) {
+        final sanitizedHeaders = Map<String, dynamic>.from(requestHeaders);
+        if (sanitizedHeaders['Authorization'] != null) {
+          sanitizedHeaders['Authorization'] = 'Bearer <hidden>';
+        }
+        debugPrint(
+          'DEBUG ApiServices.PATCH -> path=$path query=$queryParameters headers=$sanitizedHeaders data=$data',
+        );
+      }
+
+      final response = await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: requestHeaders),
+      );
+
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG ApiServices.PATCH response -> path=$path status=${response.statusCode} data=${response.data}',
+        );
+      }
+      return response;
+    } on SocketException {
+      throw 'No Internet connection';
+    } on DioException catch (e) {
+      throw 'API Error: ${e.message}';
+    }
+  }
+
   //delete
   Future<Response> delete(
     String path, {

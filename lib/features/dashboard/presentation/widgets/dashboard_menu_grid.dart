@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/auth/data/models/user_model.dart';
 import 'package:nuigate/features/dashboard/presentation/widgets/dashboard_menu_item.dart';
 import 'package:nuigate/features/dashboard/presentation/widgets/dashboard_menu_tile.dart';
@@ -38,7 +39,7 @@ class DashboardMenuGrid extends StatelessWidget {
     ),
     DashboardMenuItem(label: 'الدفع', icon: Icons.payment, route: '/payment'),
     DashboardMenuItem(
-      label: 'طلبات',
+      label: 'الطلبات',
       icon: Icons.request_page,
       route: '/requests',
     ),
@@ -46,20 +47,25 @@ class DashboardMenuGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: _items.length,
-      itemBuilder: (context, index) {
-        final item = _items[index];
-        return DashboardMenuTile(
-          item: item,
-          onTap: () => _handleNavigation(context, item),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 700 ? 3 : 2;
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 10.w,
+            mainAxisSpacing: 10.h,
+            childAspectRatio: constraints.maxWidth < 340 ? 1 : 1.1,
+          ),
+          itemCount: _items.length,
+          itemBuilder: (context, index) {
+            final item = _items[index];
+            return DashboardMenuTile(
+              item: item,
+              onTap: () => _handleNavigation(context, item),
+            );
+          },
         );
       },
     );
@@ -76,7 +82,7 @@ class DashboardMenuGrid extends StatelessWidget {
 
     if (item.route == '/results') {
       final resultStudentId =
-          int.tryParse(user.studentCode ?? '') ?? user.studentId ?? 0;
+          user.studentId ?? int.tryParse(user.studentCode ?? '') ?? 0;
       debugPrint(
         'Opening results with studentId=$resultStudentId, profileStudentId=${user.studentId}, studentCode=${user.studentCode}, userId=${user.id}',
       );
@@ -86,7 +92,7 @@ class DashboardMenuGrid extends StatelessWidget {
         '/results',
         arguments: {
           'studentId': resultStudentId,
-          'semester': user.semester ?? 1,
+          'year': user.academicYear ?? 1,
         },
       );
       return;

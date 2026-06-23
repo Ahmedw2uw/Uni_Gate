@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/core/app_strings.dart';
 import 'package:nuigate/core/service_locator.dart';
@@ -16,6 +17,9 @@ import 'package:nuigate/features/dashboard/presentation/view/dashboard_page.dart
 import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_cubit.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_lectures_cubit.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_navigation_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_assignments_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_exams_cubit.dart';
+import 'package:nuigate/features/doctor/logic/cubit/doctor_submissions_cubit.dart';
 import 'package:nuigate/features/doctor/presentation/view/doctor_shell_page.dart';
 import 'package:nuigate/features/onboarding/presentation/view/onboarding_page.dart';
 import 'package:nuigate/features/exams/presentation/view/exams_page.dart';
@@ -40,66 +44,94 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static const Size _designSize = Size(360, 690);
+
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<AuthCubit>.value(value: ServiceLocator.authCubit),
-        BlocProvider<CoursesCubit>.value(value: ServiceLocator.coursesCubit),
-        BlocProvider<CourseRegistrationCubit>.value(
-          value: ServiceLocator.courseRegistrationCubit,
-        ),
-        BlocProvider<AssignmentCubit>.value(
-          value: ServiceLocator.assignmentCubit,
-        ),
-        BlocProvider<ResultsCubit>.value(value: ServiceLocator.resultsCubit),
-        BlocProvider<RequestsCubit>.value(value: ServiceLocator.requestsCubit),
-        BlocProvider<PaymentCubit>.value(value: ServiceLocator.paymentCubit),
-        BlocProvider<DoctorCoursesCubit>.value(
-          value: ServiceLocator.doctorCoursesCubit,
-        ),
-        BlocProvider<DoctorNavigationCubit>.value(
-          value: ServiceLocator.doctorNavigationCubit,
-        ),
-        BlocProvider<DoctorLecturesCubit>.value(
-          value: ServiceLocator.doctorLecturesCubit,
-        ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: AppStrings.appTitle,
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        theme: ThemeData(
-          primaryColor: AppColors.primary,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.primary,
-          ).copyWith(secondary: AppColors.accent),
-          scaffoldBackgroundColor: AppColors.background,
-          appBarTheme: const AppBarTheme(backgroundColor: AppColors.primary),
-        ),
-        routes: {
-          '/login': (ctx) => const LoginPage(),
-          '/home': (ctx) => const _HomeWrapper(),
-          '/onboarding': (ctx) => const OnboardingPage(),
-          '/courses': (ctx) => const CoursesPage(),
-          '/schedule': (ctx) => const SchedulePage(),
-          '/exams': (ctx) => const ExamsPage(),
-          '/results': (ctx) => const ResultsPage(),
-          '/content': (ctx) => const ContentListPage(),
-          '/submission': (ctx) => const SubmissionPage(),
-          '/payment': (ctx) => const PaymentPage(),
-          '/requests': (ctx) => const RequestsPage(),
-          '/course-registration': (ctx) => const CourseRegistrationPage(),
-          '/doctor': (ctx) => const DoctorShellPage(),
-        },
-        home: const _HomeWrapper(),
-      ),
+    return ScreenUtilInit(
+      designSize: _designSize,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<AuthCubit>.value(value: ServiceLocator.authCubit),
+            BlocProvider<CoursesCubit>.value(
+              value: ServiceLocator.coursesCubit,
+            ),
+            BlocProvider<CourseRegistrationCubit>.value(
+              value: ServiceLocator.courseRegistrationCubit,
+            ),
+            BlocProvider<AssignmentCubit>.value(
+              value: ServiceLocator.assignmentCubit,
+            ),
+            BlocProvider<ResultsCubit>.value(
+              value: ServiceLocator.resultsCubit,
+            ),
+            BlocProvider<RequestsCubit>.value(
+              value: ServiceLocator.requestsCubit,
+            ),
+            BlocProvider<PaymentCubit>.value(
+              value: ServiceLocator.paymentCubit,
+            ),
+            BlocProvider<DoctorCoursesCubit>.value(
+              value: ServiceLocator.doctorCoursesCubit,
+            ),
+            BlocProvider<DoctorNavigationCubit>.value(
+              value: ServiceLocator.doctorNavigationCubit,
+            ),
+            BlocProvider<DoctorLecturesCubit>.value(
+              value: ServiceLocator.doctorLecturesCubit,
+            ),
+            BlocProvider<DoctorAssignmentsCubit>.value(
+              value: ServiceLocator.doctorAssignmentsCubit,
+            ),
+            BlocProvider<DoctorExamsCubit>.value(
+              value: ServiceLocator.doctorExamsCubit,
+            ),
+            BlocProvider<DoctorSubmissionsCubit>.value(
+              value: ServiceLocator.doctorSubmissionsCubit,
+            ),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: AppStrings.appTitle,
+            locale: const Locale('ar'),
+            supportedLocales: const [Locale('ar')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            theme: ThemeData(
+              primaryColor: AppColors.primary,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppColors.primary,
+              ).copyWith(secondary: AppColors.accent),
+              scaffoldBackgroundColor: AppColors.background,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: AppColors.primary,
+              ),
+            ),
+            routes: {
+              '/login': (ctx) => const LoginPage(),
+              '/home': (ctx) => const _HomeWrapper(),
+              '/onboarding': (ctx) => const OnboardingPage(),
+              '/courses': (ctx) => const CoursesPage(),
+              '/schedule': (ctx) => const SchedulePage(),
+              '/exams': (ctx) => const ExamsPage(),
+              '/results': (ctx) => const ResultsPage(),
+              '/content': (ctx) => const ContentListPage(),
+              '/submission': (ctx) => const SubmissionPage(),
+              '/payment': (ctx) => const PaymentPage(),
+              '/requests': (ctx) => const RequestsPage(),
+              '/course-registration': (ctx) => const CourseRegistrationPage(),
+              '/doctor': (ctx) => const DoctorShellPage(),
+            },
+            home: const _HomeWrapper(),
+          ),
+        );
+      },
     );
   }
 }

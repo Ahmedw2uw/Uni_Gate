@@ -18,7 +18,12 @@ enum DoctorTab {
     icon: Icons.menu_book_outlined,
     title: 'المحاضرات',
   ),
-  exams(label: 'الامتحانات', icon: Icons.quiz_outlined, title: 'الامتحانات');
+  exams(label: 'الامتحانات', icon: Icons.quiz_outlined, title: 'الامتحانات'),
+  submissions(
+    label: 'التقديمات',
+    icon: Icons.check_circle_outline,
+    title: 'التقديمات',
+  );
 
   final String label;
   final IconData icon;

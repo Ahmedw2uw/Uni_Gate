@@ -122,7 +122,7 @@ class _DoctorLecturesPageState extends State<DoctorLecturesPage> {
                     child: _LectureTile(
                       lecture: lecture,
                       isDeleting: state.isDeleting,
-                      onOpen: () => _openLecture(lecture),
+                      onDownload: () => _openLecture(lecture),
                       onDelete: () => _deleteLecture(lecture),
                     ),
                   ),
@@ -183,31 +183,45 @@ class _DoctorLecturesPageState extends State<DoctorLecturesPage> {
       courseId: course.courseId,
       lecture: lecture,
     );
+    debugPrint('DEBUG _openLecture -> url=$url');
+
     if (!mounted) return;
     if (url == null || url.isEmpty) {
-      _showMessage('?? ???? ???? ???? ???? ?????', isError: true);
+      _showMessage('تعذر الحصول على رابط تحميل الملف', isError: true);
       return;
     }
 
     final normalizedUrl = url.startsWith('http')
         ? url
-        : 'http://uni-gate.runasp.net';
+        : Uri.parse(
+            'http://uni-gate.runasp.net',
+          ).resolve(url.startsWith('/') ? url : '/$url').toString();
+    debugPrint('DEBUG _openLecture -> normalizedUrl=$normalizedUrl');
+
     final uri = Uri.tryParse(normalizedUrl);
+    debugPrint('DEBUG _openLecture -> uri=$uri');
+
     if (uri == null) {
-      _showMessage('???? ????? ??? ????', isError: true);
+      _showMessage('الرابط المرسل غير صالح', isError: true);
       return;
     }
 
     try {
+      debugPrint(
+        'DEBUG _openLecture -> attempting launchUrl with mode=externalApplication',
+      );
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      debugPrint('DEBUG _openLecture -> launchUrl result: $opened');
+
       if (!mounted) return;
       if (!opened) {
-        _showMessage('???? ??? ????? ??? ??????', isError: true);
+        _showMessage('تعذر فتح الرابط في التطبيق الخارجي', isError: true);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('DEBUG _openLecture -> exception: $e');
       if (!mounted) return;
       _showMessage(
-        '???? ??? ?????. ??? ????? ??????? ?????? ????? ?? ??? ??? ????.',
+        'حدث خطأ أثناء محاولة فتح الملف. تأكد من توفر تطبيق لفتح الروابط.',
         isError: true,
       );
     }
@@ -390,13 +404,13 @@ class _EmptyLectures extends StatelessWidget {
 class _LectureTile extends StatelessWidget {
   final DoctorLectureEntity lecture;
   final bool isDeleting;
-  final VoidCallback onOpen;
+  final VoidCallback onDownload;
   final VoidCallback onDelete;
 
   const _LectureTile({
     required this.lecture,
     required this.isDeleting,
-    required this.onOpen,
+    required this.onDownload,
     required this.onDelete,
   });
 
@@ -406,55 +420,57 @@ class _LectureTile extends StatelessWidget {
         lecture.contentType.toLowerCase().contains('video') ||
         lecture.fileUrl.toLowerCase().contains('.mp4');
 
-    return InkWell(
-      onTap: onOpen,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.black12),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: isDeleting ? null : onDelete,
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Delete',
+            onPressed: isDeleting ? null : onDelete,
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+          ),
+          IconButton(
+            tooltip: 'Download',
+            onPressed: onDownload,
+            icon: const Icon(Icons.download_outlined, color: AppColors.primary),
+          ),
+          const Spacer(),
+          Flexible(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                CustomText(
+                  lecture.lectureName,
+                  fontWeight: FontWeight.w700,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                CustomText(
+                  _formatMeta(lecture),
+                  fontSize: 11,
+                  color: Colors.black45,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const Spacer(),
-            Flexible(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  CustomText(
-                    lecture.lectureName,
-                    fontWeight: FontWeight.w700,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  CustomText(
-                    _formatMeta(lecture),
-                    fontSize: 11,
-                    color: Colors.black45,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              isVideo
-                  ? Icons.video_camera_back_outlined
-                  : Icons.picture_as_pdf_outlined,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            isVideo
+                ? Icons.video_camera_back_outlined
+                : Icons.picture_as_pdf_outlined,
+            color: AppColors.primary,
+            size: 20,
+          ),
+        ],
       ),
     );
   }

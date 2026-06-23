@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nuigate/features/doctor/data/models/doctor_lecture_model.dart';
 import 'package:nuigate/features/doctor/domain/entities/doctor_lecture_entity.dart';
@@ -112,7 +113,7 @@ class DoctorLecturesCubit extends Cubit<DoctorLecturesState> {
         '/instructor/courses/$courseId/lectures/$lectureId',
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 204) {
         emit(
           state.copyWith(
             isDeleting: false,
@@ -145,17 +146,52 @@ class DoctorLecturesCubit extends Cubit<DoctorLecturesState> {
     required int courseId,
     required DoctorLectureEntity lecture,
   }) async {
-    if (lecture.fileUrl.isNotEmpty) return lecture.fileUrl;
-    if (lecture.lectureId <= 0) return null;
-
-    final response = await apiServices.get(
-      '/instructor/courses/$courseId/lectures/${lecture.lectureId}/download',
+    debugPrint(
+      'DEBUG getLectureDownloadUrl -> lectureId=${lecture.lectureId} fileUrl=${lecture.fileUrl}',
     );
 
-    if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
-      return response.data['fileUrl']?.toString();
+    if (lecture.fileUrl.isNotEmpty) {
+      debugPrint(
+        'DEBUG getLectureDownloadUrl -> returning cached fileUrl: ${lecture.fileUrl}',
+      );
+      return lecture.fileUrl;
     }
 
+    if (lecture.lectureId <= 0) {
+      debugPrint('DEBUG getLectureDownloadUrl -> invalid lectureId');
+      return null;
+    }
+
+    final path =
+        '/instructor/courses/$courseId/lectures/${lecture.lectureId}/download';
+    debugPrint('DEBUG getLectureDownloadUrl -> requesting: $path');
+
+    final response = await apiServices.get(path);
+    debugPrint(
+      'DEBUG getLectureDownloadUrl -> response status=${response.statusCode} dataType=${response.data.runtimeType}',
+    );
+    debugPrint('DEBUG getLectureDownloadUrl -> response.data=$response.data');
+
+    if (response.statusCode == 200) {
+      if (response.data is Map<String, dynamic>) {
+        final fileUrl = response.data['fileUrl']?.toString();
+        debugPrint(
+          'DEBUG getLectureDownloadUrl -> extracted fileUrl: $fileUrl',
+        );
+        if (fileUrl != null && fileUrl.isNotEmpty) {
+          return fileUrl;
+        }
+      }
+      final fallbackUrl = response.realUri.toString();
+      debugPrint(
+        'DEBUG getLectureDownloadUrl -> using fallback URL: $fallbackUrl',
+      );
+      return fallbackUrl;
+    }
+
+    debugPrint(
+      'DEBUG getLectureDownloadUrl -> failed with status ${response.statusCode}',
+    );
     return null;
   }
 }

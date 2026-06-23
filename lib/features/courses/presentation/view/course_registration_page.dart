@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/auth/domain/entities/user_entity.dart';
 import 'package:nuigate/features/auth/logic/cubit/auth_cubit.dart';
@@ -56,16 +57,16 @@ class _CourseRegistrationPageState extends State<CourseRegistrationPage> {
   }
 
   List<CourseEntity> _filterCourses(List<CourseEntity> courses) {
-    return courses.where((c) {
-      bool yearMatch = true;
-      bool semMatch = true;
-      if (_selectedYear != null && c.academicYear != null) {
-        yearMatch = c.academicYear == _selectedYear;
+    return courses.where((course) {
+      var yearMatch = true;
+      var semesterMatch = true;
+      if (_selectedYear != null && course.academicYear != null) {
+        yearMatch = course.academicYear == _selectedYear;
       }
-      if (_selectedSemester != null && c.semester != null) {
-        semMatch = c.semester == _selectedSemester;
+      if (_selectedSemester != null && course.semester != null) {
+        semesterMatch = course.semester == _selectedSemester;
       }
-      return yearMatch && semMatch;
+      return yearMatch && semesterMatch;
     }).toList();
   }
 
@@ -114,50 +115,32 @@ class _CourseRegistrationPageState extends State<CourseRegistrationPage> {
             );
           }
 
-          AvailableCoursesLoaded? loaded;
-          bool isSubmitting = false;
-          if (state is AvailableCoursesLoaded) {
-            loaded = state;
-          } else if (state is CourseRegistrationSubmitting &&
-              context.read<CourseRegistrationCubit>().state
-                  is AvailableCoursesLoaded) {
-            loaded =
-                context.read<CourseRegistrationCubit>().state
-                    as AvailableCoursesLoaded;
-            isSubmitting = true;
-          } else if (state is CourseRegistrationFailure &&
-              context.read<CourseRegistrationCubit>().state
-                  is AvailableCoursesLoaded) {
-            loaded =
-                context.read<CourseRegistrationCubit>().state
-                    as AvailableCoursesLoaded;
-          }
-
-          if (loaded == null) {
-            return const SizedBox.shrink();
-          }
+          final loaded = _resolveLoadedState(context, state);
+          if (loaded == null) return const SizedBox.shrink();
 
           final filtered = _filterCourses(loaded.courses);
+          final isSubmitting = state is CourseRegistrationSubmitting;
 
           return Column(
             children: [
               RegistrationFilterBar(
                 selectedYear: _selectedYear,
                 selectedSemester: _selectedSemester,
-                onYearChanged: (v) => setState(() => _selectedYear = v),
-                onSemesterChanged: (v) => setState(() => _selectedSemester = v),
+                onYearChanged: (value) => setState(() => _selectedYear = value),
+                onSemesterChanged: (value) =>
+                    setState(() => _selectedSemester = value),
               ),
               Expanded(
                 child: filtered.isEmpty
-                    ? _EmptyView()
+                    ? const _EmptyView()
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16.r),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final course = filtered[index];
                           return AvailableCourseCard(
                             course: course,
-                            isSelected: loaded!.selectedCourseIds.contains(
+                            isSelected: loaded.selectedCourseIds.contains(
                               course.id,
                             ),
                             onToggle: (_) {
@@ -173,13 +156,29 @@ class _CourseRegistrationPageState extends State<CourseRegistrationPage> {
                 selectedCount: loaded.selectedCourseIds.length,
                 totalCreditHours: loaded.totalCreditHours,
                 isLoading: isSubmitting,
-                onRegister: () => _showConfirmDialog(context, loaded!),
+                onRegister: () => _showConfirmDialog(context, loaded),
               ),
             ],
           );
         },
       ),
     );
+  }
+
+  AvailableCoursesLoaded? _resolveLoadedState(
+    BuildContext context,
+    CourseRegistrationState state,
+  ) {
+    if (state is AvailableCoursesLoaded) return state;
+
+    final current = context.read<CourseRegistrationCubit>().state;
+    if (current is AvailableCoursesLoaded &&
+        (state is CourseRegistrationSubmitting ||
+            state is CourseRegistrationFailure)) {
+      return current;
+    }
+
+    return null;
   }
 
   void _showConfirmDialog(BuildContext context, AvailableCoursesLoaded state) {
@@ -197,27 +196,29 @@ class _CourseRegistrationPageState extends State<CourseRegistrationPage> {
 }
 
 class _EmptyView extends StatelessWidget {
+  const _EmptyView();
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.library_books_outlined,
-              size: 64,
+              size: 64.r,
               color: AppColors.primary.withValues(alpha: 0.4),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             const CustomText(
-              'لا توجد مقررات متاحة للتسجيل حالياً',
+              'لا توجد مقررات متاحة للتسجيل حاليا',
               fontSize: 16,
               fontWeight: FontWeight.w600,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             const CustomText(
               'يرجى مراجعة شؤون الطلاب للاستفسار عن المقررات المتاحة.',
               fontSize: 13,
@@ -241,25 +242,25 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 64.r, color: Colors.red[300]),
+            SizedBox(height: 16.h),
             const CustomText(
               'حدث خطأ',
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             CustomText(
               message,
               fontSize: 13,
               color: Colors.black54,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),

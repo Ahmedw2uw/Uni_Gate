@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/exams/data/exam_info.dart';
 import 'package:nuigate/features/exams/presentation/widgets/exam_option_tile.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -18,16 +19,16 @@ class ExamQuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
+              blurRadius: 10.r,
             ),
           ],
         ),
@@ -39,7 +40,7 @@ class ExamQuestionCard extends StatelessWidget {
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             ...question.options.map(
               (option) => ExamOptionTile(
                 option: option,

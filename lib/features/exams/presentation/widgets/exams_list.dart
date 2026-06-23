@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/exams/data/exam_info.dart';
 import 'package:nuigate/features/exams/presentation/widgets/exam_card.dart';
 
@@ -11,7 +12,7 @@ class ExamsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       itemCount: exams.length,
       itemBuilder: (context, index) {
         final exam = exams[index];

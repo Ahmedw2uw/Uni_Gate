@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/courses/data/models/course_content_model.dart';
 import 'package:nuigate/features/courses/presentation/widgets/course_material_tile.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -40,14 +41,14 @@ class CourseMaterialsSection extends StatelessWidget {
   void _openContent(BuildContext context, CourseContentModel content) {
     final url = content.fileUrl;
     if (url == null || url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('رابط المحتوى غير متاح')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('رابط المحتوى غير متاح')));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('فتح: ${content.lectureName}')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('فتح: ${content.lectureName}')));
   }
 
   @override
@@ -55,17 +56,18 @@ class CourseMaterialsSection extends StatelessWidget {
     final contents = _extractContents(courseContent);
 
     if (contents.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h),
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.folder_open, size: 48, color: Colors.grey),
-              SizedBox(height: 12),
-              CustomText(
-                'لا يوجد محتوى متاح حالياً',
+              Icon(Icons.folder_open, size: 48.r, color: Colors.grey),
+              SizedBox(height: 12.h),
+              const CustomText(
+                'لا يوجد محتوى متاح حاليا',
                 fontSize: 14,
                 color: Colors.grey,
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -77,7 +79,7 @@ class CourseMaterialsSection extends StatelessWidget {
       children: [
         ...contents.map((content) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(bottom: 12.h),
             child: CourseMaterialTile(
               icon: _iconForType(content.contentType),
               title: content.lectureName,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/courses/domain/entities/course_entity.dart';
 import 'package:nuigate/features/courses/logic/cubit/courses_cubit.dart';
@@ -17,29 +18,44 @@ class CourseCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            blurRadius: 12.r,
+            offset: Offset(0, 6.h),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomText(
             course.name,
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.primary,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
-          CustomText(course.code, fontSize: 14, color: Colors.black54),
-          CustomText(course.instructor, fontSize: 14, color: Colors.black54),
-          const SizedBox(height: 16),
+          SizedBox(height: 8.h),
+          CustomText(
+            course.code,
+            fontSize: 14,
+            color: Colors.black54,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          CustomText(
+            course.instructor,
+            fontSize: 14,
+            color: Colors.black54,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 16.h),
           _ViewContentButton(courseId: course.id, courseName: course.name),
         ],
       ),
@@ -61,9 +77,9 @@ class _ViewContentButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12.h),
         ),
         onPressed: () async {
           debugPrint('Course ID: $courseId, Course Name: $courseName');
@@ -88,6 +104,7 @@ class _ViewContentButton extends StatelessWidget {
           'عرض المحتوى',
           color: Colors.white,
           fontWeight: FontWeight.w700,
+          textAlign: TextAlign.center,
         ),
       ),
     );

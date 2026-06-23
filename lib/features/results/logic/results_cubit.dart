@@ -11,87 +11,101 @@ class ResultsCubit extends Cubit<ResultsState> {
 
   ResultsCubit(this.apiServices) : super(ResultsInitial());
 
-  Future<void> fetchCurrentStudentResults({int semester = 1}) async {
+  Future<void> fetchCurrentStudentResults({int? year, int? semester}) async {
     emit(ResultsLoading());
+    final requestedYear = year ?? semester ?? 1;
+
     try {
       final profileResponse = await apiServices.get('/Students/me/profile');
       if (profileResponse.statusCode != 200 ||
           profileResponse.data is! Map<String, dynamic>) {
-        emit(ResultsFailure("تعذر تحميل بيانات الطالب قبل جلب النتائج."));
+        emit(ResultsFailure('تعذر تحميل بيانات الطالب قبل جلب النتائج.'));
         return;
       }
 
       final user = UserModel.fromJson(profileResponse.data);
-      final studentId = int.tryParse(user.studentCode ?? '') ?? user.studentId;
+      final studentId = user.studentId ?? int.tryParse(user.studentCode ?? '');
       debugPrint(
-        'Resolved results studentId=$studentId, studentCode=${user.studentCode}, userId=${user.id}',
+        'RESULTS: resolved studentId=$studentId, studentCode=${user.studentCode}, year=$requestedYear',
       );
 
       if (studentId == null || studentId <= 0) {
-        emit(ResultsFailure("تعذر تحديد رقم الطالب لجلب النتائج."));
+        emit(ResultsFailure('تعذر تحديد رقم الطالب لجلب النتائج.'));
         return;
       }
 
-      await fetchStudentResults(studentId: studentId, semester: semester);
+      await fetchStudentResults(studentId: studentId, year: requestedYear);
     } catch (error) {
-      emit(ResultsFailure("خطأ في تحميل بيانات الطالب قبل جلب النتائج."));
-      debugPrint("Error resolving current student for results: $error");
+      emit(ResultsFailure('خطأ في تحميل بيانات الطالب قبل جلب النتائج.'));
+      debugPrint('RESULTS: error resolving current student: $error');
     }
   }
 
   Future<void> fetchStudentResults({
     required int studentId,
-    int semester = 1,
+    int? year,
+    int? semester,
   }) async {
     emit(ResultsLoading());
+    final requestedYear = year ?? semester ?? 1;
+
     if (studentId <= 0) {
-      emit(ResultsFailure("لا يمكن جلب النتائج قبل تحميل بيانات الطالب."));
+      emit(ResultsFailure('لا يمكن جلب النتائج قبل تحميل بيانات الطالب.'));
       return;
     }
 
     try {
-      // تم التعديل إلى GET بناءً على مواصفات سواجر
       final response = await apiServices.get(
         '/Result/$studentId',
-        queryParameters: {
-          'semester': semester,
-        }, //! change S-> to s if not working
+        queryParameters: {'year': requestedYear},
       );
 
-      if (response.statusCode == 200 && response.data != null) {
+      debugPrint('RESULTS: response status=${response.statusCode}');
+
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         final resultResponse = StudentResultResponse.fromJson(response.data);
         emit(ResultsSuccess(resultResponse));
-      } else if (response.statusCode == 404) {
-        emit(ResultsFailure("لا توجد نتائج مسجلة لهذا الطالب في هذا الترم."));
-      } else if (response.statusCode == 500) {
-        emit(ResultsFailure("تعذر تحميل النتائج من السيرفر حاليا."));
-      } else {
-        debugPrint(
-          "Unexpected results response: ${response.statusCode} - ${response.data}",
-        );
-        emit(ResultsFailure("فشل جلب تفاصيل الدرجات والنتائج"));
+        return;
       }
-      debugPrint("Results response status: ${response.statusCode}");
+
+      if (response.statusCode == 404) {
+        emit(ResultsFailure('لا توجد نتائج مسجلة لهذا الطالب في هذه السنة.'));
+        return;
+      }
+
+      if (response.statusCode == 500) {
+        emit(ResultsFailure('تعذر تحميل النتائج من السيرفر حالياً.'));
+        return;
+      }
+
+      debugPrint('RESULTS: unexpected response=${response.data}');
+      emit(ResultsFailure('فشل جلب تفاصيل الدرجات والنتائج.'));
     } catch (error) {
-      String errorMessage = "خطأ في الاتصال بالسيرفر أثناء جلب النتائج";
-      if (error is DioException && error.response != null) {
-        // ✅ 1. لو الخطأ 404 أو 500، ثبت الرسالة العربي واخرج
-        if (error.response?.statusCode == 404 ||
-            error.response?.statusCode == 500) {
-          errorMessage = "لا توجد نتائج أو درجات مسجلة لهذا الترم حتى الآن.";
-        }
-        // 🌟 2. الـ else دي هي اللي هتحمي رسالتك من المسح
-        else if (error.response?.data != null) {
-          final data = error.response!.data;
-          if (data is Map) {
-            errorMessage = data['detail'] ?? data['title'] ?? errorMessage;
-          }
-        }
-      } else if (error is String) {
-        errorMessage = error;
-      }
-      emit(ResultsFailure(errorMessage));
-      debugPrint("Error fetching results: $error"); // Debug print
+      emit(ResultsFailure(_mapResultsError(error)));
+      debugPrint('RESULTS: error fetching results: $error');
     }
+  }
+
+  String _mapResultsError(Object error) {
+    if (error is DioException && error.response != null) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 404) {
+        return 'لا توجد نتائج مسجلة لهذا الطالب في هذه السنة.';
+      }
+      if (statusCode == 500) {
+        return 'تعذر تحميل النتائج من السيرفر حالياً.';
+      }
+
+      final data = error.response?.data;
+      if (data is Map) {
+        return data['detail']?.toString() ??
+            data['title']?.toString() ??
+            'خطأ في الاتصال بالسيرفر أثناء جلب النتائج.';
+      }
+      if (data is String && data.isNotEmpty) return data;
+    }
+
+    if (error is String) return error;
+    return 'خطأ في الاتصال بالسيرفر أثناء جلب النتائج.';
   }
 }

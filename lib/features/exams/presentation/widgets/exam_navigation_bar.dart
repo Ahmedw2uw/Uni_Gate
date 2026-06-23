@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
@@ -21,17 +22,17 @@ class ExamNavigationBar extends StatelessWidget {
     final isLastQuestion = currentIndex >= totalQuestions - 1;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       child: Row(
         children: [
           if (currentIndex > 0)
             Expanded(
               child: OutlinedButton(
                 onPressed: onPrevious,
-                child: const CustomText('السابق'),
+                child: const CustomText('السابق', textAlign: TextAlign.center),
               ),
             ),
-          if (currentIndex > 0) const SizedBox(width: 12),
+          if (currentIndex > 0) SizedBox(width: 12.w),
           Expanded(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -41,6 +42,7 @@ class ExamNavigationBar extends StatelessWidget {
               child: CustomText(
                 isLastQuestion ? 'إنهاء وتسليم' : 'التالي',
                 color: Colors.white,
+                textAlign: TextAlign.center,
               ),
             ),
           ),

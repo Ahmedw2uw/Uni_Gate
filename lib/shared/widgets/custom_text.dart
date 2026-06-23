@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// A small, reusable text widget with convenient style overrides.
 ///
@@ -37,9 +38,9 @@ class CustomText extends StatelessWidget {
         .merge(style)
         .copyWith(
           color: color,
-          fontSize: fontSize,
+          fontSize: fontSize?.sp,
           fontWeight: fontWeight,
-          letterSpacing: letterSpacing,
+          letterSpacing: letterSpacing?.w,
           decoration: decoration,
         );
 

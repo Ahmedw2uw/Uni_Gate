@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/exams/presentation/widgets/exam_timer_badge.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -18,21 +19,25 @@ class ExamAttemptTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       color: Colors.white,
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(
-                'السؤال ${currentIndex + 1}/$totalQuestions',
-                fontWeight: FontWeight.bold,
+              Expanded(
+                child: CustomText(
+                  'السؤال ${currentIndex + 1}/$totalQuestions',
+                  fontWeight: FontWeight.bold,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              SizedBox(width: 10.w),
               ExamTimerBadge(remaining: remaining),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           LinearProgressIndicator(
             value: totalQuestions == 0
                 ? 0

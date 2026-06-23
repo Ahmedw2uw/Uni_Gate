@@ -29,9 +29,7 @@ class _CoursesPageState extends State<CoursesPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const CourseRegistrationPage(),
-            ),
+            MaterialPageRoute(builder: (_) => const CourseRegistrationPage()),
           );
         },
         icon: const Icon(Icons.add),

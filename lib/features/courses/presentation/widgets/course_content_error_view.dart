@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class CourseContentErrorView extends StatelessWidget {
@@ -15,26 +16,28 @@ class CourseContentErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 64),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, color: Colors.red, size: 64.r),
+            SizedBox(height: 16.h),
             const CustomText(
               'فشل تحميل المحتوى',
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.red,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             CustomText(
               message,
               fontSize: 14,
               color: Colors.grey[700],
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),

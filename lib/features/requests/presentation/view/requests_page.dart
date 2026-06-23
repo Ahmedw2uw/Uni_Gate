@@ -79,7 +79,19 @@ class _RequestsPageState extends State<RequestsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('طلبات شؤون الطلاب'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('طلبات شؤون الطلاب'),
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: BlocConsumer<RequestsCubit, RequestsState>(
         listener: (context, state) {
           if (state is SubmitRequestSuccess) {
