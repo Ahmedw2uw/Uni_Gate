@@ -56,10 +56,6 @@ class DashboardPage extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(ctx).pop();
                 await context.read<AuthCubit>().logout();
-                if (!context.mounted) return;
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil('/onboarding', (route) => false);
               },
               child: const Text('تسجيل الخروج'),
             ),

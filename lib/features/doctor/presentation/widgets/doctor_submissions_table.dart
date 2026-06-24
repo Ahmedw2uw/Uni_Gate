@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/doctor/domain/entities/doctor_submission_entity.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -49,7 +50,7 @@ class _DoctorSubmissionsTableState extends State<DoctorSubmissionsTable> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: const Color(0xFFE2E6EF)),
       ),
       child: Column(
@@ -64,7 +65,7 @@ class _DoctorSubmissionsTableState extends State<DoctorSubmissionsTable> {
               onSaveGrade: () => _saveGrade(submission),
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             child: Align(
               alignment: Alignment.centerLeft,
               child: CustomText(
@@ -106,19 +107,19 @@ class _TableHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F7FB),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F7FB),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.r)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          SizedBox(width: 72, child: _HeaderText('الإجراءات')),
-          SizedBox(width: 72, child: _HeaderText('الدرجة')),
-          Expanded(child: _HeaderText('الملف')),
-          SizedBox(width: 92, child: _HeaderText('تاريخ التسليم')),
-          Expanded(child: _HeaderText('اسم الواجب')),
-          Expanded(child: _HeaderText('اسم الطالب')),
+          SizedBox(width: 78.w, child: const _HeaderText('الإجراءات')),
+          SizedBox(width: 82.w, child: const _HeaderText('الدرجة')),
+          Expanded(child: const _HeaderText('الملف')),
+          SizedBox(width: 100.w, child: const _HeaderText('تاريخ التسليم')),
+          Expanded(child: const _HeaderText('اسم الواجب')),
+          Expanded(child: const _HeaderText('اسم الطالب')),
         ],
       ),
     );
@@ -143,39 +144,49 @@ class _SubmissionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: Color(0xFFE9EDF5))),
       ),
       child: Row(
         children: [
           SizedBox(
-            width: 72,
+            width: 78.w,
             child: Row(
               children: [
-                IconButton(
-                  tooltip: 'حفظ الدرجة',
-                  onPressed: isGrading ? null : onSaveGrade,
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    size: 18,
-                    color: isGrading ? Colors.black26 : AppColors.primary,
+                SizedBox(
+                  width: 36.r,
+                  height: 36.r,
+                  child: IconButton(
+                    tooltip: 'حفظ الدرجة',
+                    padding: EdgeInsets.zero,
+                    onPressed: isGrading ? null : onSaveGrade,
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: 18.r,
+                      color: isGrading ? Colors.black26 : AppColors.primary,
+                    ),
                   ),
                 ),
-                IconButton(
-                  tooltip: 'عرض ملف الطالب',
-                  onPressed: onOpenFile,
-                  icon: const Icon(
-                    Icons.visibility_outlined,
-                    size: 18,
-                    color: Colors.black54,
+                SizedBox(
+                  width: 36.r,
+                  height: 36.r,
+                  child: IconButton(
+                    tooltip: 'عرض ملف الطالب',
+                    padding: EdgeInsets.zero,
+                    onPressed: onOpenFile,
+                    icon: Icon(
+                      Icons.visibility_outlined,
+                      size: 18.r,
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           SizedBox(
-            width: 72,
+            width: 82.w,
             child: TextField(
               controller: gradeController,
               enabled: !isGrading,
@@ -183,17 +194,18 @@ class _SubmissionRow extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              style: TextStyle(fontSize: 12.sp),
               decoration: InputDecoration(
                 isDense: true,
                 suffixText: submission.maxGrade == null
                     ? null
                     : '/${_formatGrade(submission.maxGrade)}',
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 8,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 6.w,
+                  vertical: 8.h,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(6.r),
                 ),
               ),
             ),
@@ -201,7 +213,7 @@ class _SubmissionRow extends StatelessWidget {
           Expanded(
             child: TextButton.icon(
               onPressed: onOpenFile,
-              icon: const Icon(Icons.attach_file, size: 15),
+              icon: Icon(Icons.attach_file, size: 15.r),
               label: CustomText(
                 submission.fileUrl.isEmpty ? 'ملف التسليم' : _fileName,
                 color: AppColors.primary,
@@ -212,7 +224,7 @@ class _SubmissionRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 92,
+            width: 100.w,
             child: _CellText(_formatDate(submission.submittedAt)),
           ),
           Expanded(child: _CellText(submission.assignmentTitle)),
@@ -253,6 +265,8 @@ class _HeaderText extends StatelessWidget {
       fontSize: 11,
       fontWeight: FontWeight.w700,
       textAlign: TextAlign.center,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

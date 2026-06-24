@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_cubit.dart';
 import 'package:nuigate/features/doctor/logic/cubit/doctor_courses_state.dart';
 import 'package:nuigate/features/doctor/presentation/widgets/doctor_courses_grid.dart';
@@ -34,7 +35,7 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
         if (state is DoctorCoursesFailure) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               child: CustomText(
                 state.message,
                 color: Colors.red,

@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/doctor/presentation/widgets/doctor_lecture_upload_box.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -23,15 +24,15 @@ class DoctorLectureForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 10.r,
+            offset: Offset(0, 4.h),
           ),
         ],
       ),
@@ -39,7 +40,7 @@ class DoctorLectureForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const CustomText('عنوان المحاضرة', fontWeight: FontWeight.w700),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           TextField(
             controller: titleController,
             textDirection: TextDirection.rtl,
@@ -47,43 +48,43 @@ class DoctorLectureForm extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'أدخل عنوان المحاضرة',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 12.h,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           const CustomText(
             'رفع الملف (PDF أو Video)',
             fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           DoctorLectureUploadBox(
             selectedFileName: selectedFile?.name,
             onTap: isUploading ? null : onPickFile,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           Align(
             alignment: Alignment.centerLeft,
             child: SizedBox(
-              width: 96,
-              height: 42,
+              width: 96.w,
+              height: 42.h,
               child: FilledButton(
                 onPressed: isUploading ? null : onUpload,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
                 child: isUploading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
+                    ? SizedBox(
+                        width: 18.r,
+                        height: 18.r,
+                        child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
                         ),

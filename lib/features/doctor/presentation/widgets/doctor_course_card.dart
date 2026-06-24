@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/doctor/domain/entities/doctor_course_entity.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
@@ -18,23 +19,24 @@ class DoctorCourseCard extends StatelessWidget {
     return Card(
       elevation: 2,
       color: Colors.white,
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         side: const BorderSide(color: Color(0xFF9BAAD8)),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.all(14.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.menu_book, color: AppColors.primary),
-                  const SizedBox(width: 8),
+                  Icon(Icons.menu_book, color: AppColors.primary, size: 22.r),
+                  SizedBox(width: 8.w),
                   Expanded(
                     child: CustomText(
                       course.courseName,
@@ -46,15 +48,17 @@ class DoctorCourseCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               CustomText(
                 course.sectionName.isEmpty
                     ? course.courseCode
                     : '${course.courseCode} - ${course.sectionName}',
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               CustomText(
                 course.departmentName,
                 fontSize: 12,
@@ -62,24 +66,26 @@ class DoctorCourseCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              SizedBox(height: 14.h),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                runSpacing: 8.h,
+                spacing: 8.w,
                 children: [
                   _Metric(label: 'طلاب', value: course.studentCount),
                   _Metric(label: 'تسليمات', value: course.submissionCount),
                   _Metric(label: 'امتحانات', value: course.upcomingExamCount),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               SizedBox(
-                height: 40,
+                height: 40.h,
                 child: FilledButton(
                   onPressed: onTap,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(6.r),
                     ),
                   ),
                   child: const CustomText(
@@ -113,7 +119,7 @@ class _Metric extends StatelessWidget {
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         CustomText(label, fontSize: 12, color: Colors.black54),
       ],
     );

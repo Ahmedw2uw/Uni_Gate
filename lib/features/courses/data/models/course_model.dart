@@ -48,8 +48,9 @@ class CourseModel extends CourseEntity {
       );
       instructorName = instructorModel.fullName;
     } else {
-      instructorName = "${json['instructorTitle'] ?? ''} ${json['instructorName'] ?? ''}"
-          .trim();
+      instructorName =
+          "${json['instructorTitle'] ?? ''} ${json['instructorName'] ?? ''}"
+              .trim();
     }
 
     DepartmentModel? deptModel;
@@ -90,7 +91,11 @@ class CourseModel extends CourseEntity {
     List<StudentCourseEnrollmentModel> enrollments = [];
     if (json['studentCourses'] is List) {
       enrollments = (json['studentCourses'] as List)
-          .map((e) => StudentCourseEnrollmentModel.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) => StudentCourseEnrollmentModel.fromJson(
+              e as Map<String, dynamic>,
+            ),
+          )
           .toList();
     }
 
@@ -107,7 +112,7 @@ class CourseModel extends CourseEntity {
       departmentId: json['departmentId'] is int ? json['departmentId'] : null,
       academicYear: json['academicYear'] is int ? json['academicYear'] : null,
       semester: json['semester'] is int ? json['semester'] : null,
-      content: json['content'],
+      content: json['content'] ?? contents,
       title: json['title']?.toString(),
       description: json['description']?.toString(),
       instructorObj: instructorModel,

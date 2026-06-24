@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/shared/widgets/custom_text.dart';
 
 class DoctorEmptyLectures extends StatelessWidget {
@@ -6,9 +7,9 @@ class DoctorEmptyLectures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 30),
-      child: CustomText(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 30.h),
+      child: const CustomText(
         'لا توجد محاضرات مرفوعة لهذا الكورس بعد.',
         color: Colors.black54,
         textAlign: TextAlign.center,

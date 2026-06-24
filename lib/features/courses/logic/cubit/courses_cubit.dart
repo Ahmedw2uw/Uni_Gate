@@ -31,22 +31,19 @@ class CoursesCubit extends Cubit<CoursesState> {
     emit(const CoursesLoading());
 
     try {
-      final authState = authCubit.state;
-      UserEntity? user;
-      if (authState is AuthSuccess) user = authState.user;
-      if (authState is Authenticated) user = authState.user;
+      final user = _currentUser;
       if (user == null) {
         emit(const CoursesFailure(message: 'يجب تسجيل الدخول لعرض المقررات'));
         return;
       }
 
-      final int? deptId = user.departmentId;
+      final deptId = user.departmentId;
       if (deptId == null || deptId == 0) {
         emit(const CoursesUserNotAssigned());
         return;
       }
 
-      final int year = (user.academicYear != null && user.academicYear != 0)
+      final year = (user.academicYear != null && user.academicYear != 0)
           ? user.academicYear!
           : 1;
 
@@ -57,8 +54,8 @@ class CoursesCubit extends Cubit<CoursesState> {
       );
 
       emit(CoursesSuccess(courses: courses));
-    } catch (e) {
-      emit(CoursesFailure(message: e.toString()));
+    } catch (error) {
+      emit(CoursesFailure(message: error.toString()));
     }
   }
 
@@ -69,8 +66,8 @@ class CoursesCubit extends Cubit<CoursesState> {
     try {
       final courses = await getMyCoursesUseCase();
       emit(CoursesSuccess(courses: courses));
-    } catch (e) {
-      emit(CoursesFailure(message: e.toString()));
+    } catch (error) {
+      emit(CoursesFailure(message: error.toString()));
     }
   }
 
@@ -80,53 +77,37 @@ class CoursesCubit extends Cubit<CoursesState> {
       return;
     }
 
-    if (_currentCourseId == courseId && state is CourseContentLoading) {
-      return;
-    }
+    if (_currentCourseId == courseId && state is CourseContentLoading) return;
 
     _currentCourseId = courseId;
     emit(const CourseContentLoading());
 
+    final user = _currentUser;
+    final studentId = user?.studentId ?? int.tryParse(user?.id ?? '');
+
+    if (kDebugMode) {
+      debugPrint(
+        'DEBUG fetchCourseContent -> authUserId=${user?.id} '
+        'authUserStudentId=${user?.studentId} '
+        'resolvedStudentId=$studentId '
+        'courseId=$courseId',
+      );
+    }
+
+    if (studentId == null || studentId <= 0) {
+      emit(
+        const CourseContentFailure(
+          message: 'لا يوجد معرف طالب صالح للوصول للمحتوى',
+        ),
+      );
+      return;
+    }
+
     try {
-      final authState = authCubit.state;
-      UserEntity? user;
-      if (authState is AuthSuccess) user = authState.user;
-      if (authState is Authenticated) user = authState.user;
-
-      final int? studentId = user?.studentId ?? int.tryParse(user?.id ?? '');
-
-      if (kDebugMode) {
-        debugPrint(
-          'DEBUG fetchCourseContent -> authUserId=${user?.id} '
-          'authUserStudentId=${user?.studentId} '
-          'resolvedStudentId=$studentId '
-          'courseId=$courseId',
-        );
-      }
-
-      if (studentId == null || studentId <= 0) {
-        emit(
-          const CourseContentFailure(
-            message: 'لا يوجد معرف طالب صالح للوصول للمحتوى',
-          ),
-        );
-        return;
-      }
-
-      late final CourseEntity courseDetails;
-      try {
-        courseDetails = await getCourseWithContentUseCase(courseId);
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint(
-            'DEBUG: getCourseWithContent failed, fallback to student-specific content: $e',
-          );
-        }
-        courseDetails = await getCourseContentUseCase(
-          studentId: studentId.toString(),
-          courseId: courseId,
-        );
-      }
+      final courseDetails = await _loadCourseContent(
+        courseId: courseId,
+        studentId: studentId,
+      );
 
       if (kDebugMode) {
         debugPrint(
@@ -140,19 +121,70 @@ class CoursesCubit extends Cubit<CoursesState> {
           courseContent: courseDetails.content,
         ),
       );
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('ERROR in fetchCourseContent: $e');
+    } catch (error) {
+      if (kDebugMode) debugPrint('ERROR in fetchCourseContent: $error');
+
+      if (_isUnavailableContentError(error)) {
+        final emptyCourse = CourseEntity(
+          id: courseId,
+          name: 'محتوى المقرر',
+          code: '',
+          creditHours: 0,
+          price: 0,
+          content: const <dynamic>[],
+        );
+        emit(
+          CourseContentSuccess(
+            course: emptyCourse,
+            courseContent: const <dynamic>[],
+          ),
+        );
+        return;
       }
 
-      String errorMessage = 'حدث خطأ أثناء جلب البيانات';
-      if (e.toString().contains('403') || e.toString().contains('Forbidden')) {
-        errorMessage = 'عفواً، أنت غير مسجل في هذا المقرر للوصول للمحتوى';
-      } else {
-        errorMessage = e.toString();
-      }
-
-      emit(CourseContentFailure(message: errorMessage));
+      emit(CourseContentFailure(message: _courseContentErrorMessage(error)));
     }
+  }
+
+  Future<CourseEntity> _loadCourseContent({
+    required String courseId,
+    required int studentId,
+  }) async {
+    try {
+      return await getCourseWithContentUseCase(courseId);
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint(
+          'DEBUG: getCourseWithContent failed, fallback to student-specific content: $error',
+        );
+      }
+      return getCourseContentUseCase(
+        studentId: studentId.toString(),
+        courseId: courseId,
+      );
+    }
+  }
+
+  UserEntity? get _currentUser {
+    final authState = authCubit.state;
+    if (authState is AuthSuccess) return authState.user;
+    if (authState is Authenticated) return authState.user;
+    return null;
+  }
+
+  bool _isUnavailableContentError(Object error) {
+    final text = error.toString().toLowerCase();
+    return text.contains('403') ||
+        text.contains('404') ||
+        text.contains('forbidden') ||
+        text.contains('not found');
+  }
+
+  String _courseContentErrorMessage(Object error) {
+    final text = error.toString();
+    if (text.contains('401') || text.toLowerCase().contains('unauthorized')) {
+      return 'انتهت جلسة الدخول. برجاء تسجيل الدخول مرة أخرى.';
+    }
+    return 'حدث خطأ أثناء جلب محتوى المقرر';
   }
 }

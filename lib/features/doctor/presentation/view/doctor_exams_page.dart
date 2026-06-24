@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/doctor/domain/entities/doctor_course_entity.dart';
 import 'package:nuigate/features/doctor/domain/entities/doctor_exam_entity.dart';
@@ -57,14 +58,8 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.course == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: CustomText('اختر كورسا أولاً', textAlign: TextAlign.center),
-        ),
-      );
-    }
+    final course = widget.course;
+    if (course == null) return const _NoCourseSelected();
 
     return BlocConsumer<DoctorExamsCubit, DoctorExamsState>(
       listenWhen: (p, c) =>
@@ -81,40 +76,44 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
         );
       },
       builder: (context, state) => SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomText(
-              widget.course!.courseName,
+              course.courseName,
               fontSize: 20,
               fontWeight: FontWeight.w800,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             const CustomText(
               'إدارة الامتحانات',
               color: Colors.black54,
               fontSize: 14,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             _buildForm(context, state),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             const CustomText(
               'الامتحانات المرفوعة',
               fontWeight: FontWeight.w800,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             if (state.exams.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 30),
-                child: CustomText(
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 30.h),
+                child: const CustomText(
                   'لا توجد امتحانات',
                   color: Colors.black54,
                   textAlign: TextAlign.center,
                 ),
               )
             else
-              ...state.exams.map((e) => _buildExamTile(context, e, state)),
+              ...state.exams.map(
+                (exam) => _buildExamTile(context, exam, state),
+              ),
           ],
         ),
       ),
@@ -123,14 +122,14 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
 
   Widget _buildForm(BuildContext context, DoctorExamsState state) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            blurRadius: 10.r,
           ),
         ],
       ),
@@ -144,20 +143,24 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
             decoration: InputDecoration(
               hintText: 'عنوان الامتحان',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 12.h,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           DropdownButtonFormField<int>(
             initialValue: _examType,
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 10.h,
               ),
             ),
             items: const [
@@ -167,25 +170,25 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
             ],
             onChanged: state.isUploading
                 ? null
-                : (v) => setState(() => _examType = v ?? 0),
+                : (value) => setState(() => _examType = value ?? 0),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           TextField(
             keyboardType: TextInputType.number,
             enabled: !state.isUploading,
             decoration: InputDecoration(
               hintText: 'المدة (دقائق)',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 12.h,
               ),
             ),
-            onChanged: (v) => _duration = int.tryParse(v) ?? 60,
+            onChanged: (value) => _duration = int.tryParse(value) ?? 60,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           InkWell(
             onTap: () async {
               final picked = await showDatePicker(
@@ -197,18 +200,19 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
               if (picked != null) setState(() => _startTime = picked);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black26),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: Text(
-                'تاريخ البدء: ${_startTime.year}-${_startTime.month}-${_startTime.day}',
+                'تاريخ البدء: ${_formatDate(_startTime)}',
                 textAlign: TextAlign.right,
+                style: TextStyle(fontSize: 14.sp),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           InkWell(
             onTap: () async {
               final result = await FilePicker.pickFiles(
@@ -221,37 +225,40 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
               }
             },
             child: Container(
-              constraints: const BoxConstraints(minHeight: 50),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              constraints: BoxConstraints(minHeight: 50.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black26),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Text(
+              child: CustomText(
                 _selectedFile?.name ?? 'اختر ملف PDF',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _selectedFile == null
-                      ? Colors.black54
-                      : AppColors.primary,
-                ),
+                color: _selectedFile == null
+                    ? Colors.black54
+                    : AppColors.primary,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: state.isUploading ? null : () => _upload(context),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            child: state.isUploading
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('رفع'),
+          SizedBox(height: 12.h),
+          SizedBox(
+            height: 44.h,
+            child: FilledButton(
+              onPressed: state.isUploading ? null : () => _upload(context),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              child: state.isUploading
+                  ? SizedBox(
+                      width: 18.r,
+                      height: 18.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('رفع'),
+            ),
           ),
         ],
       ),
@@ -260,50 +267,55 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
 
   Widget _buildExamTile(
     BuildContext context,
-    DoctorExamEntity e,
+    DoctorExamEntity exam,
     DoctorExamsState state,
   ) {
     const examTypes = ['عملي', 'نظري', 'شامل'];
+    final type = exam.examType >= 0 && exam.examType < examTypes.length
+        ? examTypes[exam.examType]
+        : 'امتحان';
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: Colors.black12),
         ),
         child: Row(
           children: [
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+            _ActionIcon(
+              icon: Icons.delete_outline,
+              color: Colors.red,
               onPressed: state.isDeleting
                   ? null
-                  : () => _delete(context, e.examId),
+                  : () => _delete(context, exam.examId),
             ),
-            IconButton(
-              icon: const Icon(
-                Icons.download_outlined,
-                color: AppColors.primary,
-              ),
-              onPressed: () => _download(e),
+            _ActionIcon(
+              icon: Icons.download_outlined,
+              color: AppColors.primary,
+              onPressed: () => _download(exam),
             ),
-            const Spacer(),
-            Flexible(
-              flex: 4,
+            SizedBox(width: 8.w),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   CustomText(
-                    e.title,
+                    exam.title,
                     fontWeight: FontWeight.w700,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  SizedBox(height: 3.h),
                   CustomText(
-                    '${examTypes[e.examType]} - ${e.durationMinutes} دقيقة',
+                    '$type - ${exam.durationMinutes} دقيقة',
                     fontSize: 11,
                     color: Colors.black45,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -314,8 +326,8 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
     );
   }
 
-  void _upload(BuildContext context) async {
-    if (_titleController.text.isEmpty) {
+  Future<void> _upload(BuildContext context) async {
+    if (_titleController.text.trim().isEmpty) {
       _showMsg('اكتب العنوان', isError: true);
       return;
     }
@@ -336,26 +348,24 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
     setState(() => _selectedFile = null);
   }
 
-  void _delete(BuildContext context, int id) async {
+  Future<void> _delete(BuildContext context, int id) async {
     await context.read<DoctorExamsCubit>().deleteExam(
       courseId: widget.course!.courseId,
       examId: id,
     );
   }
 
-  void _download(DoctorExamEntity e) async {
+  Future<void> _download(DoctorExamEntity exam) async {
     final url = await context.read<DoctorExamsCubit>().getExamDownloadUrl(
       courseId: widget.course!.courseId,
-      examId: e.examId,
+      examId: exam.examId,
     );
     if (!mounted) return;
     if (url == null || url.isEmpty) {
       _showMsg('لم يتم العثور على الرابط', isError: true);
       return;
     }
-    final uri = Uri.tryParse(
-      url.startsWith('http') ? url : 'http://uni-gate.runasp.net$url',
-    );
+    final uri = _buildFileUri(url);
     if (uri != null && await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -363,11 +373,61 @@ class _DoctorExamsPageState extends State<DoctorExamsPage> {
     }
   }
 
+  Uri? _buildFileUri(String url) {
+    final value = url.trim();
+    if (value.isEmpty) return null;
+    return Uri.tryParse(
+      value.startsWith('http') ? value : 'http://uni-gate.runasp.net$value',
+    );
+  }
+
   void _showMsg(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
         backgroundColor: isError ? Colors.red : null,
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onPressed;
+
+  const _ActionIcon({required this.icon, required this.color, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 40.r,
+      height: 40.r,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(icon, color: color, size: 22.r),
+        onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _NoCourseSelected extends StatelessWidget {
+  const _NoCourseSelected();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.r),
+        child: const CustomText(
+          'اختر كورساً أولاً',
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

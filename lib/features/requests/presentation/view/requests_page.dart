@@ -1,10 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/features/requests/data/model/request_type_model.dart';
 import 'package:nuigate/features/requests/data/model/student_request_model.dart';
 import 'package:nuigate/features/requests/logic/cubit/requests_cubit.dart';
 import 'package:nuigate/features/requests/logic/requests_state.dart';
+import 'package:nuigate/shared/widgets/app_scaffold.dart';
 
 class RequestsPage extends StatefulWidget {
   const RequestsPage({super.key});
@@ -78,21 +80,9 @@ class _RequestsPageState extends State<RequestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('طلبات شؤون الطلاب'),
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: BlocConsumer<RequestsCubit, RequestsState>(
+    return AppScaffold(
+      title: 'طلبات شؤون الطلاب',
+      child: BlocConsumer<RequestsCubit, RequestsState>(
         listener: (context, state) {
           if (state is SubmitRequestSuccess) {
             _showSnackBar(state.message, Colors.green);
@@ -110,7 +100,7 @@ class _RequestsPageState extends State<RequestsPage> {
           final isSubmitting = state is SubmitRequestLoading;
 
           if (state is RequestsLoading && cubit.currentTypes.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           return RefreshIndicator(
@@ -119,7 +109,7 @@ class _RequestsPageState extends State<RequestsPage> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   sliver: SliverToBoxAdapter(
                     child: _RequestFormCard(
                       selectedTypeId: selectedTypeId,
@@ -134,13 +124,13 @@ class _RequestsPageState extends State<RequestsPage> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 12),
+                    padding: EdgeInsets.only(top: 8.h, bottom: 12.h),
                     child: Text(
                       'متابعة الطلبات',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
@@ -154,10 +144,10 @@ class _RequestsPageState extends State<RequestsPage> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
                     sliver: SliverList.separated(
                       itemCount: cubit.currentRequests.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      separatorBuilder: (_, _) => SizedBox(height: 10.h),
                       itemBuilder: (context, index) {
                         return _RequestListTile(
                           request: cubit.currentRequests[index],
@@ -199,68 +189,102 @@ class _RequestFormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'تقديم طلب جديد',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             DropdownButtonFormField<int>(
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
               hint: const Text('نوع الطلب'),
               initialValue: selectedTypeId,
               items: requestTypes.map((type) {
                 return DropdownMenuItem<int>(
                   value: type.id,
-                  child: Text(type.name),
+                  child: Text(
+                    type.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 );
               }).toList(),
               onChanged: isSubmitting ? null : onTypeChanged,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             TextField(
               controller: detailsController,
               enabled: !isSubmitting,
               maxLines: 4,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'التفاصيل',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                ElevatedButton.icon(
+            SizedBox(height: 16.h),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 330;
+                final fileName = Text(
+                  selectedFileName ?? 'مسموح فقط ملفات PDF, PNG, JPG',
+                  style: TextStyle(color: Colors.grey, fontSize: 12.sp),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                );
+                final button = ElevatedButton.icon(
                   onPressed: isSubmitting ? null : onPickFile,
                   icon: const Icon(Icons.attach_file),
                   label: const Text('رفع الملف'),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    selectedFileName ?? 'مسموح فقط ملفات PDF, PNG, JPG',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+                );
+
+                if (compact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      button,
+                      SizedBox(height: 10.h),
+                      fileName,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    button,
+                    SizedBox(width: 10.w),
+                    Expanded(child: fileName),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[900],
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
                 ),
                 onPressed: isSubmitting ? null : onSubmit,
                 child: isSubmitting
-                    ? const SizedBox.square(
-                        dimension: 22,
-                        child: CircularProgressIndicator(
+                    ? SizedBox.square(
+                        dimension: 22.r,
+                        child: const CircularProgressIndicator(
                           color: Colors.white,
                           strokeWidth: 2,
                         ),
@@ -286,11 +310,17 @@ class _RequestListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: ListTile(
-        title: Text(request.typeName),
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        title: Text(
+          request.typeName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         subtitle: Text('${request.date}\n${request.status}'),
         isThreeLine: true,
-        leading: CircleAvatar(child: Text(request.id.toString())),
+        leading: CircleAvatar(radius: 18.r, child: Text(request.id.toString())),
         trailing: TextButton(onPressed: () {}, child: const Text('مراجعة')),
       ),
     );

@@ -63,7 +63,7 @@ class CourseMaterialTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16.r, color: AppColors.primary),
+            Icon(Icons.download_rounded, size: 16.r, color: AppColors.primary),
           ],
         ),
       ),

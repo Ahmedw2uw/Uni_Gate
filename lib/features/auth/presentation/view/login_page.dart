@@ -62,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('تم تسجيل الدخول بنجاح')));
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     } else if (state is AuthFailure) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(state.message), backgroundColor: Colors.red),

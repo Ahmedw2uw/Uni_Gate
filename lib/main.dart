@@ -34,6 +34,8 @@ import 'package:nuigate/features/submission/logic/cubit/assignment_cubit.dart';
 import 'package:nuigate/features/submission/presentation/view/submission_page.dart';
 import 'package:nuigate/utils/pref_helpers.dart';
 
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrefHelpers.init();
@@ -93,42 +95,53 @@ class MyApp extends StatelessWidget {
               value: ServiceLocator.doctorSubmissionsCubit,
             ),
           ],
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: AppStrings.appTitle,
-            locale: const Locale('ar'),
-            supportedLocales: const [Locale('ar')],
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            theme: ThemeData(
-              primaryColor: AppColors.primary,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: AppColors.primary,
-              ).copyWith(secondary: AppColors.accent),
-              scaffoldBackgroundColor: AppColors.background,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: AppColors.primary,
-              ),
-            ),
-            routes: {
-              '/login': (ctx) => const LoginPage(),
-              '/home': (ctx) => const _HomeWrapper(),
-              '/onboarding': (ctx) => const OnboardingPage(),
-              '/courses': (ctx) => const CoursesPage(),
-              '/schedule': (ctx) => const SchedulePage(),
-              '/exams': (ctx) => const ExamsPage(),
-              '/results': (ctx) => const ResultsPage(),
-              '/content': (ctx) => const ContentListPage(),
-              '/submission': (ctx) => const SubmissionPage(),
-              '/payment': (ctx) => const PaymentPage(),
-              '/requests': (ctx) => const RequestsPage(),
-              '/course-registration': (ctx) => const CourseRegistrationPage(),
-              '/doctor': (ctx) => const DoctorShellPage(),
+          child: BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) => current is AuthLoggedOut,
+            listener: (context, state) {
+              appNavigatorKey.currentState?.pushNamedAndRemoveUntil(
+                '/onboarding',
+                (route) => false,
+              );
             },
-            home: const _HomeWrapper(),
+            child: MaterialApp(
+              navigatorKey: appNavigatorKey,
+              debugShowCheckedModeBanner: false,
+              title: AppStrings.appTitle,
+              locale: const Locale('ar'),
+              supportedLocales: const [Locale('ar')],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              theme: ThemeData(
+                primaryColor: AppColors.primary,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: AppColors.primary,
+                ).copyWith(secondary: AppColors.accent),
+                scaffoldBackgroundColor: AppColors.background,
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              routes: {
+                '/login': (ctx) => const LoginPage(),
+                '/home': (ctx) => const _HomeWrapper(),
+                '/onboarding': (ctx) => const OnboardingPage(),
+                '/courses': (ctx) => const CoursesPage(),
+                '/schedule': (ctx) => const SchedulePage(),
+                '/exams': (ctx) => const ExamsPage(),
+                '/results': (ctx) => const ResultsPage(),
+                '/content': (ctx) => const ContentListPage(),
+                '/submission': (ctx) => const SubmissionPage(),
+                '/payment': (ctx) => const PaymentPage(),
+                '/requests': (ctx) => const RequestsPage(),
+                '/course-registration': (ctx) => const CourseRegistrationPage(),
+                '/doctor': (ctx) => const DoctorShellPage(),
+              },
+              home: const _HomeWrapper(),
+            ),
           ),
         );
       },

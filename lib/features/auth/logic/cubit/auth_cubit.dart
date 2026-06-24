@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nuigate/features/auth/domain/entities/user_entity.dart';
 import 'package:nuigate/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:nuigate/utils/jwt_helper.dart';
 import 'package:nuigate/utils/pref_helpers.dart';
 import 'auth_state.dart';
 
-/// AuthCubit - مسؤول عن منطق المصادقة
-/// يتعامل مع تسجيل الدخول والخروج وفحص حالة المصادقة
 class AuthCubit extends Cubit<AuthState> {
   final LoginUseCase loginUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
@@ -20,30 +19,37 @@ class AuthCubit extends Cubit<AuthState> {
     required this.checkAuthStatusUseCase,
   }) : super(const AuthInitial());
 
-  /// التحقق من حالة المصادقة عند بدء التطبيق
   Future<void> checkAuthStatus() async {
     try {
       emit(const AuthLoading());
       final isLoggedIn = await checkAuthStatusUseCase();
+      final token = PrefHelpers.getToken();
 
-      if (isLoggedIn) {
-        // بدلاً من القراءة من Prefs، ننادي الـ UseCase الذي يجلب البيانات الكاملة (1654)
-        final user = await getCurrentUserUseCase();
-        emit(Authenticated(user: user));
-      } else {
+      if (!isLoggedIn || token == null || !JwtHelper.isTokenValid(token)) {
+        await PrefHelpers.clearAuthData();
         emit(const Unauthenticated());
+        return;
       }
+
+      final role = PrefHelpers.getUserRole() ?? JwtHelper.extractRole(token);
+      if (_isDoctorRole(role)) {
+        await _persistJwtUserData(token, role);
+        emit(Authenticated(user: _userFromToken(token, role)));
+        return;
+      }
+
+      final user = await getCurrentUserUseCase();
+      emit(
+        Authenticated(
+          user: user.copyWith(token: token, role: role),
+        ),
+      );
     } catch (e) {
-      // لو فشل الـ API (أوفلاين) نستخدم البيانات القديمة كخطة بديلة
-      final email = PrefHelpers.getEmail();
-      if (email != null) {
-        // (اختياري) يمكنك بناء UserEntity من الـ Prefs هنا إذا أردت دعم الأوفلاين التام
-      }
+      debugPrint('AuthCubit checkAuthStatus error: $e');
       emit(const Unauthenticated());
     }
   }
 
-  /// محاولة تسجيل الدخول - النسخة المحدثة (حل جذري)
   Future<void> login({
     required String email,
     required String password,
@@ -52,51 +58,54 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthLoading());
 
     try {
-      // الخطوة أ: تسجيل الدخول لجلب الـ Token
       final userFromLogin = await loginUseCase(
         email: email,
         password: password,
         nationalId: nationalId,
       );
 
-      // الخطوة ب: حفظ التوكن فوراً لتمكين الطلبات التالية
-      await PrefHelpers.saveToken(userFromLogin.token.toString());
+      final token = userFromLogin.token;
+      if (token == null || token.isEmpty) {
+        throw Exception('Token missing in login response');
+      }
 
-      // الخطوة ج: جلب البروفايل الكامل (الآن سيحتوي على departmentId: 1654)
+      final role = JwtHelper.extractRole(token) ?? 'Student';
+      await PrefHelpers.saveToken(token);
+      await _persistJwtUserData(token, role);
+
+      if (_isDoctorRole(role)) {
+        emit(Authenticated(user: _userFromToken(token, role)));
+        debugPrint(
+          'Authenticated as instructor from JWT without student profile request',
+        );
+        return;
+      }
+
       final fullUser = await getCurrentUserUseCase();
-
-      // الخطوة د: استخراج الصلاحيات وحفظ البيانات الكاملة
-      final role =
-          JwtHelper.extractRole(userFromLogin.token.toString()) ?? 'Student';
       await PrefHelpers.saveUserName(fullUser.name);
       await PrefHelpers.saveUserRole(role);
 
-      // الخطوة هـ: إرسال الحالة "المكتملة" للـ UI
       emit(
         Authenticated(
-          user: fullUser.copyWith(token: userFromLogin.token, role: role),
+          user: fullUser.copyWith(token: token, role: role),
         ),
       );
 
-      debugPrint("✅ Authenticated with DeptID: ${fullUser.departmentId}");
+      debugPrint('Authenticated student with DeptID: ${fullUser.departmentId}');
     } catch (e) {
-      debugPrint("❌ AuthCubit Login Error: $e");
+      debugPrint('AuthCubit Login Error: $e');
       emit(AuthFailure(message: e.toString()));
     }
   }
 
-  /// تسجيل الخروج
   Future<void> logout() async {
     emit(const AuthLoading());
 
     try {
       await logoutUseCase();
-      // حذف جميع بيانات الجلسة والمصادقة
       await PrefHelpers.clearAuthData();
-      // إعادة عرض onboarding بعد تسجيل الخروج
       await PrefHelpers.saveOnboardingCompleted(false);
       emit(const AuthLoggedOut());
-      emit(const Unauthenticated());
     } catch (e) {
       emit(AuthFailure(message: e.toString()));
     }
@@ -111,7 +120,59 @@ class AuthCubit extends Cubit<AuthState> {
 
   bool isDoctor(AuthState state) {
     if (state is! Authenticated) return false;
-    final role = state.user.role?.toLowerCase() ?? '';
-    return role.contains('doctor') || role.contains('instructor');
+    return _isDoctorRole(state.user.role);
+  }
+
+  bool _isDoctorRole(String? role) {
+    final value = role?.toLowerCase() ?? '';
+    return value.contains('doctor') || value.contains('instructor');
+  }
+
+  Future<void> _persistJwtUserData(String token, String? role) async {
+    final email = _jwtEmail(token) ?? '';
+    final name = _jwtName(token) ?? email;
+    final id = _jwtUserId(token) ?? '';
+
+    if (email.isNotEmpty) await PrefHelpers.saveEmail(email);
+    if (name.isNotEmpty) await PrefHelpers.saveUserName(name);
+    if (id.isNotEmpty) await PrefHelpers.saveUserId(id);
+    if (role != null && role.isNotEmpty) await PrefHelpers.saveUserRole(role);
+  }
+
+  UserEntity _userFromToken(String token, String? role) {
+    final email = _jwtEmail(token) ?? PrefHelpers.getEmail() ?? '';
+    final name = PrefHelpers.getUserName() ?? _jwtName(token) ?? email;
+    final id = _jwtUserId(token) ?? PrefHelpers.getUserId() ?? '';
+
+    return UserEntity(
+      id: id,
+      name: name,
+      email: email,
+      token: token,
+      role: role,
+    );
+  }
+
+  String? _jwtEmail(String token) {
+    return JwtHelper.getClaim(
+          token,
+          'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+        )?.toString() ??
+        JwtHelper.getEmail(token);
+  }
+
+  String? _jwtName(String token) {
+    return JwtHelper.getClaim(
+          token,
+          'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+        )?.toString() ??
+        JwtHelper.getUsername(token);
+  }
+
+  String? _jwtUserId(String token) {
+    return JwtHelper.getClaim(
+      token,
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier',
+    )?.toString();
   }
 }

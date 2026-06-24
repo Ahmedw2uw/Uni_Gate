@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/core/service_locator.dart';
 import 'package:nuigate/features/auth/data/models/user_model.dart';
@@ -65,8 +66,11 @@ class _PaymentViewState extends State<_PaymentView> {
 
   bool _isPaid(String? status) {
     if (status == null) return false;
-    final s = status.toLowerCase();
-    return s == 'paid' || s == 'مدفوعة' || s == 'completed' || s == 'success';
+    final value = status.toLowerCase();
+    return value == 'paid' ||
+        value == 'مدفوعة' ||
+        value == 'completed' ||
+        value == 'success';
   }
 
   @override
@@ -78,8 +82,8 @@ class _PaymentViewState extends State<_PaymentView> {
           if (state is CheckoutSuccess) {
             if (state.result.redirectUrl != null) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('جاري التحويل لبوابة الدفع'),
+                const SnackBar(
+                  content: Text('جاري التحويل لبوابة الدفع'),
                   backgroundColor: AppColors.primary,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -101,8 +105,7 @@ class _PaymentViewState extends State<_PaymentView> {
           UserEntity? userEntity;
           if (authState is Authenticated) userEntity = authState.user;
           if (authState is AuthSuccess) userEntity = authState.user;
-          final UserModel? user =
-              userEntity is UserModel ? userEntity : null;
+          final user = userEntity is UserModel ? userEntity : null;
 
           double totalAmount = 15000;
           bool isPaid = false;
@@ -148,22 +151,20 @@ class _PaymentViewState extends State<_PaymentView> {
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 800;
               return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: isWide
                     ? Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // StudentCard on right (index 0 in RTL = right)
                           Expanded(flex: 35, child: studentCard),
-                          const SizedBox(width: 16),
-                          // Form on left (index 1 in RTL = left)
+                          SizedBox(width: 16.w),
                           Expanded(flex: 65, child: paymentForm),
                         ],
                       )
                     : Column(
                         children: [
                           studentCard,
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           paymentForm,
                         ],
                       ),

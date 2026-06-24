@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 import 'package:nuigate/features/payment/presentation/widgets/amount_field.dart';
 import 'package:nuigate/features/payment/presentation/widgets/card_cvv_field.dart';
@@ -30,24 +31,24 @@ class PaymentForm extends StatelessWidget {
     required this.onSubmit,
   });
 
-  String _formatAmount(double a) {
-    if (a == a.truncateToDouble()) {
-      return a.toInt().toString().replaceAllMapped(
+  String _formatAmount(double amount) {
+    if (amount == amount.truncateToDouble()) {
+      return amount.toInt().toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (m) => '${m[1]},',
+        (match) => '${match[1]},',
       );
     }
-    return a.toStringAsFixed(2);
+    return amount.toStringAsFixed(2);
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         child: Form(
           key: formKey,
           child: Column(
@@ -61,34 +62,39 @@ class PaymentForm extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-
-
+              SizedBox(height: 24.h),
               PaymentMethodSelector(
                 selectedMethod: selectedMethod,
                 onChanged: onMethodChanged,
               ),
-              const SizedBox(height: 16),
-
+              SizedBox(height: 16.h),
               AmountField(formattedAmount: _formatAmount(amount)),
-              const SizedBox(height: 16),
-
+              SizedBox(height: 16.h),
               CardNumberField(controller: cardController),
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: CardExpiryField(controller: expiryController),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CardCvvField(controller: cvvController),
-                  ),
-                ],
+              SizedBox(height: 16.h),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 300) {
+                    return Column(
+                      children: [
+                        CardExpiryField(controller: expiryController),
+                        SizedBox(height: 16.h),
+                        CardCvvField(controller: cvvController),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: CardExpiryField(controller: expiryController),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(child: CardCvvField(controller: cvvController)),
+                    ],
+                  );
+                },
               ),
-              const SizedBox(height: 28),
-
+              SizedBox(height: 28.h),
               _SubmitButton(isLoading: isLoading, onSubmit: onSubmit),
             ],
           ),
@@ -108,26 +114,26 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         boxShadow: isLoading
             ? []
             : [
                 BoxShadow(
                   color: AppColors.primary.withAlpha(60),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  blurRadius: 12.r,
+                  offset: Offset(0, 4.h),
                 ),
               ],
       ),
       child: SizedBox(
-        height: 56,
+        height: 56.h,
         child: ElevatedButton(
           onPressed: isLoading ? null : onSubmit,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             disabledBackgroundColor: Colors.grey.shade300,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             elevation: 0,
           ),
@@ -135,34 +141,34 @@ class _SubmitButton extends StatelessWidget {
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
+                    SizedBox(
+                      width: 20.r,
+                      height: 20.r,
+                      child: const CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Text(
                       'جاري المعالجة...',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Colors.white,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelLarge?.copyWith(color: Colors.white),
                     ),
                   ],
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.lock, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
+                    Icon(Icons.lock, color: Colors.white, size: 18.r),
+                    SizedBox(width: 8.w),
                     Text(
                       'إتمام الدفع',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ],

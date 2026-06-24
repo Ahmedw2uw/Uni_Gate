@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nuigate/core/app_colors.dart';
 
 class PaymentMethodTile extends StatelessWidget {
@@ -17,41 +18,39 @@ class PaymentMethodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool selected = value == groupValue;
+    final selected = value == groupValue;
 
     return GestureDetector(
       onTap: () => onChanged(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
           border: Border.all(
             color: selected ? AppColors.primary : const Color(0xFFD1D5DB),
-            width: selected ? 2 : 1,
+            width: selected ? 2.w : 1.w,
           ),
-          borderRadius: BorderRadius.circular(12),
-          color: selected
-              ? AppColors.primary.withAlpha(15)
-              : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          color: selected ? AppColors.primary.withAlpha(15) : Colors.white,
         ),
         child: Row(
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 20,
-              height: 20,
+              width: 20.r,
+              height: 20.r,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected ? AppColors.primary : Colors.grey,
-                  width: 2,
+                  width: 2.w,
                 ),
               ),
               child: selected
                   ? Center(
                       child: Container(
-                        width: 10,
-                        height: 10,
+                        width: 10.r,
+                        height: 10.r,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.primary,
@@ -63,12 +62,8 @@ class PaymentMethodTile extends StatelessWidget {
             const Spacer(),
             logo,
             if (selected) ...[
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.check_circle,
-                color: AppColors.primary,
-                size: 18,
-              ),
+              SizedBox(width: 8.w),
+              Icon(Icons.check_circle, color: AppColors.primary, size: 18.r),
             ],
           ],
         ),

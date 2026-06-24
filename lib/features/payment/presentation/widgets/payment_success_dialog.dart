@@ -8,9 +8,7 @@ void showPaymentSuccessDialog(BuildContext context) {
     builder: (ctx) => Directionality(
       textDirection: TextDirection.rtl,
       child: Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(28),
           child: Column(
@@ -36,8 +34,9 @@ void showPaymentSuccessDialog(BuildContext context) {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF1E293B),
-                  fontFamily:
-                      Theme.of(context).textTheme.titleLarge?.fontFamily,
+                  fontFamily: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.fontFamily,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -86,8 +85,9 @@ void showPaymentSuccessDialog(BuildContext context) {
                       ),
                       onPressed: () {
                         Navigator.of(ctx).pop();
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
                       },
                       child: const Text(
                         'الرئيسية',
